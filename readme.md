@@ -10,4 +10,15 @@ FLUSH PRIVILEGES;
 
 ## run migrations
 
-diesel migration run
+```diesel migration run```
+
+```diesel migration redo -n 5```
+
+```diesel migration list```
+
+
+## maria DB
+
+```SHOW ENGINE INNODB STATUS```
+
+```select * from __diesel_schema_migrations;```
