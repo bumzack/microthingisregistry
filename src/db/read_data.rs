@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 
 use crate::diesel::associations::HasTable;
-use crate::models::{Backend, Frontend, Host, MicroService, NewBackend, NewFrontend, NewHost, NewMicroService, NewTechnology, Technology};
+use crate::models::models::{Backend, Frontend, Host, MicroService, Technology};
 
 
 pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {

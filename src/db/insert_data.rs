@@ -2,9 +2,8 @@ use diesel::mysql;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 
-use crate::create_data::{create_backend, create_frontend, create_host, create_service, create_technology};
+use crate::db::create_data::{create_backend, create_frontend, create_host, create_service, create_technology};
 use crate::diesel::associations::HasTable;
-use crate::models::{Backend, Frontend, Host, MicroService, NewBackend, NewFrontend, NewHost, NewMicroService, NewTechnology, Technology};
 
 pub fn insert_backends(connection: &mut MysqlConnection) {
     let backends = vec![

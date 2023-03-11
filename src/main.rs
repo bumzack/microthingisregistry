@@ -10,18 +10,22 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use warp::Filter;
 
-use crate::insert_data::{insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies};
-use crate::read_data::{print_backends, print_frontends, print_hosts, print_services, print_technologies};
+use crate::backend::backend_rest::filters_backend;
+use crate::db::db::get_connection_pool;
+use crate::db::insert_data::{insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies};
+use crate::db::read_data::{print_backends, print_frontends, print_hosts, print_services};
+use crate::frontend::frontend_rest::filters_frontend;
+use crate::host::host_rest::filters_host;
 use crate::technology::technology_rest::filters_technology;
-use crate::utils::{establish_connection, get_connection_pool};
 
 mod utils;
-mod create_data;
-mod insert_data;
-mod read_data;
 mod technology;
-pub mod models;
-pub mod schema;
+mod host;
+mod models;
+mod schema;
+mod db;
+mod backend;
+mod frontend;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -35,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     insert_hosts(connection);
     insert_services(connection);
 
-    print_technologies(connection);
+    print_hosts(connection);
     print_services(connection);
     print_hosts(connection);
 
@@ -54,10 +58,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     log::info!("bla");
 
-    let api = filters_technology::technology(pool.clone());
+    let root = warp::path::end().map(|| "Welcome to my warp server!");
+    let root = root
+        .or(filters_technology::technology(pool.clone()))
+        .or(filters_backend::backend(pool.clone()))
+        .or(filters_frontend::frontend(pool.clone()))
+        .or(filters_host::host(pool.clone()));
 
     // View access logs by setting `RUST_LOG=todos`.
-    let routes = api.with(warp::log("technology"));
+    let routes = root.with(warp::log("technology"));
     // Start up the server...
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 

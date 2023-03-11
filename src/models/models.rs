@@ -22,6 +22,7 @@ pub struct Backend {
     pub host_id: Option<i32>,
     pub microservice_id: String,
     pub technology_id: i32,
+    pub publish_as_frontend_package:bool,
 }
 
 
