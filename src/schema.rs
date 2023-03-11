@@ -10,6 +10,7 @@ diesel::table! {
         host_id -> Nullable<Integer>,
         microservice_id -> Varchar,
         technology_id -> Integer,
+        publish_as_frontend_package -> Bool,
     }
 }
 

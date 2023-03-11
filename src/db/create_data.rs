@@ -1,9 +1,9 @@
-use diesel::mysql;
+use diesel::{mysql};
 use diesel::prelude::*;
 use dotenvy::dotenv;
 
 use crate::diesel::associations::HasTable;
-use crate::models::{Backend, Frontend, Host, MicroService, NewBackend, NewFrontend, NewHost, NewMicroService, NewTechnology, Technology};
+use crate::models::models::{NewBackend, NewFrontend, NewHost, NewMicroService, NewTechnology};
 
 pub fn create_technology(conn: &mut MysqlConnection, other_name: &str) -> usize {
     use crate::schema::technology;
