@@ -8,7 +8,7 @@ diesel::table! {
         openapi_url -> Text,
         local_repo_path -> Varchar,
         host_id -> Nullable<Integer>,
-        service_id -> Varchar,
+        microservice_id -> Varchar,
         technology_id -> Integer,
     }
 }
@@ -21,10 +21,9 @@ diesel::table! {
         version_minor -> Integer,
         version_patch -> Integer,
         service_url -> Text,
-        openapi_url -> Text,
         local_repo_path -> Varchar,
         host_id -> Nullable<Integer>,
-        service_id -> Varchar,
+        microservice_id -> Varchar,
         technology_id -> Integer,
     }
 }
@@ -39,9 +38,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    service (id) {
+    microservice (id) {
         id -> Integer,
-        service_id -> Varchar,
+        microservice_id -> Varchar,
     }
 }
 
@@ -61,6 +60,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     backend,
     frontend,
     host,
-    service,
+    microservice,
     technology,
 );
