@@ -9,7 +9,7 @@ use diesel::prelude::*;
 
 use crate::insert_data::{insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies};
 use crate::read_data::{print_backends, print_frontends, print_hosts, print_services, print_technologies};
-use crate::utils::establish_connection;
+use crate::utils::{establish_connection, get_connection_pool};
 
 mod utils;
 mod create_data;
@@ -21,25 +21,25 @@ pub mod schema;
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut connection = establish_connection();
-    //
+    let pool = get_connection_pool();    //
     // println!("Migrating...");
     // connection.run_pending_migrations(MIGRATIONS).unwrap();
     // Ok(())
 
-    insert_technologies(&mut connection);
-    insert_hosts(&mut connection);
-    insert_services(&mut connection);
+    let connection = &mut pool.get().unwrap();
+    insert_technologies(connection);
+    insert_hosts(connection);
+    insert_services(connection);
 
-    print_technologies(&mut connection);
-    print_services(&mut connection);
-    print_hosts(&mut connection);
+    print_technologies(connection);
+    print_services(connection);
+    print_hosts(connection);
 
-    insert_frontends(&mut connection);
-    insert_backends(&mut connection);
+    insert_frontends(connection);
+    insert_backends(connection);
 
-    print_frontends(&mut connection);
-    print_backends(&mut connection);
+    print_frontends(connection);
+    print_backends(connection);
 
     Ok(())
 }
