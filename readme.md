@@ -63,3 +63,10 @@ curl --header "Content-Type: application/json"  --request PUT  --data '{"openapi
 curl localhost:3030/api/openapiclient/update | jq
 
 curl localhost:3030/api/backend/searcharticle | jq
+
+curl localhost:3030/api/backend/openapiclient/searcharticle  | jq  > client.json
+
+curl localhost:3030/api/backend/apiclientprefix/searcharticle  
+
+curl localhost:3030/api/backend/apiclientpackage/searcharticle 
+

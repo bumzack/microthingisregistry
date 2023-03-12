@@ -30,6 +30,7 @@ pub mod rest_models {
         pub technology_id: i32,
         pub publish_as_frontend_package: bool,
         pub api_client_prefix: String,
+        pub api_client_package: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
