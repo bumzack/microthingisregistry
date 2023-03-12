@@ -9,8 +9,9 @@ pub mod filters_backend {
     use r2d2::Pool;
     use warp::Filter;
 
+    use crate::backend::backend_rest::handlers_backend::{backend_openapi_client, get_backend_by_name};
     use crate::db::db::with_db;
-    use crate::models::rest_models::rest_models::NewBackendPost;
+    use crate::models::rest_models::rest_models::{NewBackendPost, UpdateBackendOpenApiPut};
 
     use super::handlers_backend;
 
@@ -19,7 +20,12 @@ pub mod filters_backend {
     ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(backend_list(connection_pool.clone())
-            .or(backend_create(connection_pool.clone())))
+            .or(backend_create(connection_pool.clone()))
+            .or(backend_update_openapi(connection_pool.clone()))
+            .or(get_backend_openapi_client(connection_pool.clone()))
+            .or(update_openapi_clients(connection_pool.clone()))
+            .or(backend_by_name(connection_pool.clone()))
+        )
     }
 
     /// GET /backend
@@ -30,6 +36,35 @@ pub mod filters_backend {
             .and(warp::get())
             .and(with_db(connection_pool.clone()))
             .and_then(handlers_backend::list_backend)
+    }
+
+    /// GET /backend/:name
+    pub fn backend_by_name(
+        connection_pool: Pool<ConnectionManager<MysqlConnection>>,
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+        warp::path!("backend" / String)
+            .and(warp::get())
+            .and(with_db(connection_pool.clone()))
+            .and_then(handlers_backend::get_backend_by_name)
+    }
+
+    /// GET /backend
+    pub fn update_openapi_clients(
+        connection_pool: Pool<ConnectionManager<MysqlConnection>>,
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+        warp::path!("openapiclient" / "update"  )
+            .and(warp::get())
+            .and(with_db(connection_pool.clone()))
+            .and_then(handlers_backend::update_openapi_clients)
+    }
+
+    pub fn get_backend_openapi_client(
+        connection_pool: Pool<ConnectionManager<MysqlConnection>>,
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+        warp::path!("backend"/ "openapiclient" / String)
+            .and(warp::get())
+            .and(with_db(connection_pool.clone()))
+            .and_then(handlers_backend::backend_openapi_client)
     }
 
     // POST /backend with JSON body
@@ -43,28 +78,54 @@ pub mod filters_backend {
             .and_then(handlers_backend::create_backend)
     }
 
+    // POST /backend with JSON body
+    pub fn backend_update_openapi(
+        connection_pool: Pool<ConnectionManager<MysqlConnection>>,
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+        warp::path!("backend" / String)
+            .and(warp::put())
+            .and(json_body_update_openapi())
+            .and(with_db(connection_pool))
+            .and_then(handlers_backend::update_backend)
+    }
+
     fn json_body_new_backend() -> impl Filter<Extract=(NewBackendPost, ), Error=warp::Rejection> + Clone {
+        // When accepting a body, we want a JSON body
+        // (and to reject huge payloads)...
+        warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+    }
+
+    fn json_body_update_openapi() -> impl Filter<Extract=(UpdateBackendOpenApiPut, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
     }
 }
 
+const CONCURRENT_REQUESTS: usize = 4;
+
 mod handlers_backend {
     use std::convert::Infallible;
 
-    use diesel::{MysqlConnection, RunQueryDsl};
+    use diesel::{MysqlConnection, QueryResult, RunQueryDsl};
     use diesel::r2d2::ConnectionManager;
+    use futures::{stream, StreamExt};
     use log::log;
     use r2d2::Pool;
+    use reqwest::Client;
     use serde::Serialize;
+    use serde_json::json;
     use warp::http::StatusCode;
 
+    use crate::backend::backend_rest::filters_backend::backend_update_openapi;
     use crate::db::create_data::create_service;
     use crate::db::read_data::print_backends;
-    use crate::microservice::microservice::find_microservice_by_name;
+    use crate::diesel::ExpressionMethods;
+    use crate::microservice::microservice;
+    use crate::microservice::microservice::{find_backend_by_name, find_microservice_by_name};
     use crate::models::models::{Backend, NewBackend};
-    use crate::models::rest_models::rest_models::{ErrorMessage, NewBackendPost, NewTechnologyPost};
+    use crate::models::rest_models::rest_models::{ErrorMessage, NewBackendPost, NewTechnologyPost, UpdateBackendOpenApiPut};
+    use crate::schema::backend::openapiclient;
 
     // opts: ListOptions,
     pub async fn list_backend(db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
@@ -75,6 +136,70 @@ mod handlers_backend {
         //  ("found {} technologies ", techs.size);
         Ok(warp::reply::json(&techs))
     }
+
+    pub async fn get_backend_by_name(ms_id: String, db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+        let be = find_backend_by_name(db, ms_id.as_str());
+        match be {
+            Some(b) => {
+                Ok(warp::reply::with_status(warp::reply::json(&b), StatusCode::OK))
+            }
+            None => {
+                let message = format!("can not find  backend {}", &ms_id);
+                let code = StatusCode::NOT_FOUND;
+                let json = warp::reply::json(&ErrorMessage {
+                    code: code.as_u16(),
+                    message: message.into(),
+                });
+                Ok(warp::reply::with_status(json, code))
+            }
+        }
+    }
+
+    pub async fn backend_openapi_client(ms_id: String, db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+        let be = find_backend_by_name(db, ms_id.as_str()).unwrap();
+        Ok(warp::reply::with_status(be.openapiclient.unwrap(), StatusCode::OK))
+    }
+
+    pub async fn update_openapi_clients(db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+        let connection = &mut db.get().unwrap();
+        let backends = print_backends(connection);
+
+        let total = backends.len();
+        let successes: i32 = backends.into_iter()
+            .map(|be| {
+                let url = be.openapi_url;
+                println!("openapi url for ms {}: {}", be.microservice_id, &url);
+
+                let client = reqwest::blocking::Client::new();
+                let res = reqwest::blocking::get(url).unwrap();
+                println!("Response: {:?} {}", res.version(), res.status());
+                println!("Headers: {:#?}\n", res.headers());
+                let body = res.text().unwrap();
+                let be_update = UpdateBackendOpenApiPut {
+                    openapiclient: body.to_string(),
+                };
+
+                match update_openapi_client(&be.microservice_id, body, db.clone()) {
+                    Ok(iedee) => {
+                        1
+                    }
+                    Err(e) => {
+                        println!("an error occurred while updating  backend {}  which we are ignoring '{}'", &be.microservice_id, e);
+                        0
+                    }
+                }
+            })
+            .sum();
+
+        let message = format!("updated OpenAPI clients. total backends {}. successes updating {}", total, successes);
+        let code = StatusCode::OK;
+        let json = warp::reply::json(&ErrorMessage {
+            code: code.as_u16(),
+            message: message.into(),
+        });
+        Ok(warp::reply::with_status(json, code))
+    }
+
 
     pub async fn create_backend(new_tec: NewBackendPost, pool: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
         use crate::schema::backend;
@@ -102,6 +227,8 @@ mod handlers_backend {
             openapi_url: new_tec.openapi_url.as_str(),
             local_repo_path: new_tec.local_repo_path.as_str(),
             technology_id: new_tec.technology_id,
+            api_client_prefix: new_tec.api_client_prefix.as_str(),
+            publish_as_frontend_package: new_tec.publish_as_frontend_package,
         };
 
         match diesel::insert_into(backend::table)
@@ -128,5 +255,52 @@ mod handlers_backend {
                 Ok(warp::reply::with_status(json, code))
             }
         }
+    }
+
+    pub async fn update_backend(ms_id: String, update: UpdateBackendOpenApiPut, pool: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+        use crate::schema::backend::dsl::backend;
+        use crate::schema::backend::id;
+        use crate::schema::backend::microservice_id;
+        use crate::schema::backend::openapiclient;
+
+        let result = update_openapi_client(&ms_id, update.openapiclient, pool);
+
+        match result {
+            Ok(iedee) => {
+                let message = format!("updated open api client for {}", &ms_id);
+                let code = StatusCode::OK;
+                let json = warp::reply::json(&ErrorMessage {
+                    code: code.as_u16(),
+                    message: message.into(),
+                });
+                Ok(warp::reply::with_status(json, code))
+            }
+            Err(e) => {
+                let message = format!("an error occurred while updating  backend {}  which we are ignoring '{}'", &ms_id, e);
+                let code = StatusCode::INTERNAL_SERVER_ERROR;
+
+                let json = warp::reply::json(&ErrorMessage {
+                    code: code.as_u16(),
+                    message: message.into(),
+                });
+
+                Ok(warp::reply::with_status(json, code))
+            }
+        }
+    }
+
+    pub fn update_openapi_client(ms_id: &String, openapi: String, pool: Pool<ConnectionManager<MysqlConnection>>) -> QueryResult<usize> {
+        use crate::schema::backend::dsl::backend;
+        use crate::schema::backend::id;
+        use crate::schema::backend::microservice_id;
+        use crate::schema::backend::openapiclient;
+        println!("updating microservice new service {:?} with data {:?}", &ms_id, openapi);
+        let connection = &mut pool.get().unwrap();
+
+        let result = diesel::update(backend)
+            .filter(microservice_id.eq(&ms_id))
+            .set(openapiclient.eq(openapi))
+            .execute(connection);
+        result
     }
 }

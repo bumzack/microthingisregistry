@@ -23,6 +23,7 @@ pub struct Backend {
     pub microservice_id: String,
     pub technology_id: i32,
     pub publish_as_frontend_package: bool,
+    pub api_client_prefix: String,
 }
 
 
@@ -98,6 +99,8 @@ pub struct NewBackend<'a> {
     pub openapi_url: &'a str,
     pub local_repo_path: &'a str,
     pub technology_id: i32,
+    pub api_client_prefix: &'a str,
+    pub publish_as_frontend_package: bool,
 }
 
 #[derive(Insertable)]

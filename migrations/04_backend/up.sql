@@ -9,6 +9,7 @@ CREATE TABLE backend
     microservice_id VARCHAR(255) NOT NULL UNIQUE,
     technology_id   int          NOT NULL,
     publish_as_frontend_package   BOOLEAN          NOT NULL  DEFAULT  false,
+    api_client_prefix VARCHAR(255) NOT NULL UNIQUE,
     FOREIGN KEY (host_id) REFERENCES host (id),
     FOREIGN KEY (microservice_id) REFERENCES microservice (microservice_id),
     FOREIGN KEY (technology_id) REFERENCES technology (id),

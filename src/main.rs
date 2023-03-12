@@ -1,7 +1,6 @@
 extern crate diesel;
-#[macro_use]
-extern crate diesel_migrations;
 extern crate pretty_env_logger;
+extern crate  futures ;
 
 use std::env;
 
