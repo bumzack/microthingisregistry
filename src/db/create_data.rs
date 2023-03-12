@@ -68,7 +68,9 @@ pub fn create_backend(conn: &mut MysqlConnection,
         technology_id: new_technology_id,
         api_client_prefix: "apiclientprefix",
         publish_as_frontend_package: false,
+        api_client_package: "apiclientpackage",
     };
+
     match diesel::insert_into(backend::table)
         .values(&new_backend)
         .execute(conn) {

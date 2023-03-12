@@ -12,6 +12,7 @@ diesel::table! {
         technology_id -> Integer,
         publish_as_frontend_package -> Bool,
         api_client_prefix -> Varchar,
+        api_client_package -> Varchar,
     }
 }
 

@@ -24,6 +24,7 @@ pub struct Backend {
     pub technology_id: i32,
     pub publish_as_frontend_package: bool,
     pub api_client_prefix: String,
+    pub api_client_package: String,
 }
 
 
@@ -101,6 +102,7 @@ pub struct NewBackend<'a> {
     pub technology_id: i32,
     pub api_client_prefix: &'a str,
     pub publish_as_frontend_package: bool,
+    pub api_client_package: &'a str,
 }
 
 #[derive(Insertable)]
