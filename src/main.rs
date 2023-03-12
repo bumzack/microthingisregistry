@@ -26,28 +26,26 @@ mod schema;
 mod db;
 mod backend;
 mod frontend;
+mod microservice;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let pool = get_connection_pool();    //
-    // println!("Migrating...");
-    // connection.run_pending_migrations(MIGRATIONS).unwrap();
-    // Ok(())
-
+    let pool = get_connection_pool();
     let connection = &mut pool.get().unwrap();
-    insert_technologies(connection);
-    insert_hosts(connection);
-    insert_services(connection);
 
-    print_hosts(connection);
-    print_services(connection);
-    print_hosts(connection);
-
-    insert_frontends(connection);
-    insert_backends(connection);
-
-    print_frontends(connection);
-    print_backends(connection);
+    // insert_technologies(connection);
+    // insert_hosts(connection);
+    // insert_services(connection);
+    //
+    // print_hosts(connection);
+    // print_services(connection);
+    // print_hosts(connection);
+    //
+    // // insert_frontends(connection);
+    // // insert_backends(connection);
+    //
+    // print_frontends(connection);
+    // print_backends(connection);
 
     if env::var_os("RUST_LOG").is_none() {
         // Set `RUST_LOG=todos=debug` to see debug logs,

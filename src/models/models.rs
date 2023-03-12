@@ -1,14 +1,14 @@
 use diesel::prelude::*;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::schema::backend;
 use crate::schema::frontend;
 use crate::schema::host;
 use crate::schema::microservice;
 use crate::schema::technology;
-use serde::Deserialize;
-use serde::Serialize;
 
-#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq,Deserialize, Serialize)]
+#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = backend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -22,11 +22,11 @@ pub struct Backend {
     pub host_id: Option<i32>,
     pub microservice_id: String,
     pub technology_id: i32,
-    pub publish_as_frontend_package:bool,
+    pub publish_as_frontend_package: bool,
 }
 
 
-#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq,Deserialize, Serialize)]
+#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = frontend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -44,7 +44,7 @@ pub struct Frontend {
     pub technology_id: i32,
 }
 
-#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq,Deserialize, Serialize)]
+#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = host)]
 pub struct Host {
     pub id: i32,
@@ -54,14 +54,14 @@ pub struct Host {
 }
 
 
-#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq,Deserialize, Serialize)]
+#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = microservice)]
 pub struct MicroService {
     pub id: i32,
     pub microservice_id: String,
 }
 
-#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq,Deserialize, Serialize)]
+#[derive(Queryable, Identifiable, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = technology)]
 pub struct Technology {
     pub id: i32,

@@ -3,7 +3,7 @@
 // and
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
-pub mod filters_frontend{
+pub mod filters_frontend {
     use diesel::MysqlConnection;
     use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
@@ -14,7 +14,7 @@ pub mod filters_frontend{
 
     use super::handlers_frontend;
 
-    pub fn frontend (
+    pub fn frontend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         let api = warp::path("api");
@@ -29,7 +29,7 @@ pub mod filters_frontend{
         warp::path!("frontend")
             .and(warp::get())
             .and(with_db(connection_pool.clone()))
-            .and_then(handlers_frontend::list_frontend )
+            .and_then(handlers_frontend::list_frontend)
     }
 
     // POST /frontend  with JSON body
@@ -38,12 +38,12 @@ pub mod filters_frontend{
     ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::post())
-            .and(json_body_new_frontend ())
+            .and(json_body_new_frontend())
             .and(with_db(connection_pool))
             .and_then(handlers_frontend::create_frontend)
     }
 
-    fn json_body_new_frontend () -> impl Filter<Extract=(NewFrontendPost, ), Error=warp::Rejection> + Clone {
+    fn json_body_new_frontend() -> impl Filter<Extract=(NewFrontendPost, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -59,13 +59,15 @@ mod handlers_frontend {
     use serde::Serialize;
     use warp::http::StatusCode;
     use warp::log;
-    use crate::db::read_data::{print_backends, print_frontends};
+    use crate::db::create_data::create_service;
 
+    use crate::db::read_data::{print_backends, print_frontends};
+    use crate::microservice::microservice::find_microservice_by_name;
     use crate::models::models::{Frontend, NewFrontend};
     use crate::models::rest_models::rest_models::{ErrorMessage, NewFrontendPost};
 
     // opts: ListOptions,
-    pub async fn list_frontend (db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+    pub async fn list_frontend(db: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
         // Just return a JSON array of todos, applying the limit and offset.
         let connection = &mut db.get().unwrap();
         let frontends: Vec<Frontend> = print_frontends(connection);
@@ -79,6 +81,19 @@ mod handlers_frontend {
 
         //  log::info!("create_frontend: {:?}", create);
         let connection = &mut pool.get().unwrap();
+
+        // insert value into microservice table
+        let id = create_service(connection, new_tec.microservice_id.as_str());
+        let result = find_microservice_by_name(pool, new_tec.microservice_id.as_str());
+        if result.is_none() {
+            let message = format!("can't find microservice id '{}'", new_tec.microservice_id.as_str());
+            let code = StatusCode::NOT_FOUND;
+            let json = warp::reply::json(&ErrorMessage {
+                code: code.as_u16(),
+                message: message.into(),
+            });
+            return Ok(warp::reply::with_status(json, code));
+        }
 
         let new_frontend = NewFrontend {
             microservice_id: new_tec.microservice_id.as_str(),
