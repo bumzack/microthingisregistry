@@ -3,25 +3,25 @@ pub mod rest_models {
     use serde::Serialize;
 
     /// An API error serializable to JSON.
-    #[derive(Serialize)]
+    #[derive(Serialize, Debug)]
     pub struct ErrorMessage {
         pub(crate) code: u16,
         pub(crate) message: String,
     }
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct NewHostPost {
         pub hostname: String,
         pub ip: String,
         pub port: i32,
     }
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct NewTechnologyPost {
         pub name: String,
     }
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct NewBackendPost {
         pub service_url: String,
         pub openapi_url: String,
@@ -31,7 +31,7 @@ pub mod rest_models {
         pub publish_as_frontend_package: bool,
     }
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct NewFrontendPost {
         pub url: String,
         pub service_url: String,
