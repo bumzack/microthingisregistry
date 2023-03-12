@@ -1,4 +1,5 @@
 use std::env;
+
 use diesel::{Connection, MysqlConnection};
 use diesel::r2d2::ConnectionManager;
 use dotenvy::dotenv;

@@ -1,4 +1,4 @@
-use diesel::{mysql};
+use diesel::mysql;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 

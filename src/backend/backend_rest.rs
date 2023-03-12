@@ -36,11 +36,11 @@ pub mod filters_backend {
     pub fn backend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
-        warp::path!("technology")
+        warp::path!("backend")
             .and(warp::post())
             .and(json_body_new_backend())
             .and(with_db(connection_pool))
-            .and_then(handlers_backend::create_technology)
+            .and_then(handlers_backend::create_backend)
     }
 
     fn json_body_new_backend() -> impl Filter<Extract=(NewBackendPost, ), Error=warp::Rejection> + Clone {
@@ -55,13 +55,15 @@ mod handlers_backend {
 
     use diesel::{MysqlConnection, RunQueryDsl};
     use diesel::r2d2::ConnectionManager;
+    use log::log;
     use r2d2::Pool;
     use serde::Serialize;
     use warp::http::StatusCode;
-    use warp::log;
-    use crate::db::read_data::print_backends;
-    use crate::models::models::{Backend, NewBackend};
 
+    use crate::db::create_data::create_service;
+    use crate::db::read_data::print_backends;
+    use crate::microservice::microservice::find_microservice_by_name;
+    use crate::models::models::{Backend, NewBackend};
     use crate::models::rest_models::rest_models::{ErrorMessage, NewBackendPost, NewTechnologyPost};
 
     // opts: ListOptions,
@@ -74,13 +76,26 @@ mod handlers_backend {
         Ok(warp::reply::json(&techs))
     }
 
-    pub async fn create_technology(new_tec: NewBackendPost, pool: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
+    pub async fn create_backend(new_tec: NewBackendPost, pool: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
         use crate::schema::backend;
 
         //  log::info!("create_technology: {:?}", create);
         let connection = &mut pool.get().unwrap();
 
-        let new_backend= NewBackend {
+        // insert value into microservice table
+        let id = create_service(connection, new_tec.microservice_id.as_str());
+        let result = find_microservice_by_name(pool, new_tec.microservice_id.as_str());
+        if result.is_none() {
+            let message = format!("can't find microservice id '{}'", new_tec.microservice_id.as_str());
+            let code = StatusCode::NOT_FOUND;
+            let json = warp::reply::json(&ErrorMessage {
+                code: code.as_u16(),
+                message: message.into(),
+            });
+            return Ok(warp::reply::with_status(json, code));
+        }
+
+        let new_backend = NewBackend {
             microservice_id: new_tec.microservice_id.as_str(),
             service_url: new_tec.service_url.as_str(),
             openapi_url: new_tec.openapi_url.as_str(),

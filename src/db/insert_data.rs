@@ -19,9 +19,9 @@ pub fn insert_backends(connection: &mut MysqlConnection) {
 
 pub fn insert_frontends(connection: &mut MysqlConnection) {
     let frontends = vec![
-        ("solrsearchproduct", "/search/product", "/Users/bumzack/repo1", "/dist/index.js", 4),
-        ("solrsearchcategory", "/search/category", "/Users/bumzack/repo2", "/dist/index.js", 4),
-        ("solrsearchimage", "/search/image", "/Users/bumzack/repo3", "/dist/index.js", 4),
+        ("searchcomponent", "/search/product", "/Users/bumzack/repo1", "/dist/index.js", 2),
+        ("articelistcomponent", "/search/category", "/Users/bumzack/repo2", "/dist/index.js", 2),
+        ("solrsearchimage", "/search/image", "/Users/bumzack/repo3", "/dist/index.js", 2),
     ];
     frontends.into_iter().for_each(|s| {
         let x = create_frontend(connection, s.0, s.1, s.2, s.3, s.4);
