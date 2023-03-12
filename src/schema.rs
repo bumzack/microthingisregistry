@@ -11,6 +11,7 @@ diesel::table! {
         microservice_id -> Varchar,
         technology_id -> Integer,
         publish_as_frontend_package -> Bool,
+        api_client_prefix -> Varchar,
     }
 }
 

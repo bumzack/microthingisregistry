@@ -29,6 +29,12 @@ pub mod rest_models {
         pub microservice_id: String,
         pub technology_id: i32,
         pub publish_as_frontend_package: bool,
+        pub api_client_prefix: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct UpdateBackendOpenApiPut {
+        pub openapiclient: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

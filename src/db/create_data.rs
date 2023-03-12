@@ -66,6 +66,8 @@ pub fn create_backend(conn: &mut MysqlConnection,
         openapi_url: new_openapi_url,
         local_repo_path: new_local_repo_path,
         technology_id: new_technology_id,
+        api_client_prefix: "apiclientprefix",
+        publish_as_frontend_package: false,
     };
     match diesel::insert_into(backend::table)
         .values(&new_backend)

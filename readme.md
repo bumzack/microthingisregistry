@@ -56,4 +56,10 @@ curl --header "Content-Type: application/json"  --request POST  --data '{"url":"
 
 curl localhost:3030/api/backend | jq
 
-curl --header "Content-Type: application/json"  --request POST  --data '{"openapi_url" : "/swagger.html", "service_url" : "/search/product",  "local_repo_path" : "/Users/bumzack/bla",  "microservice_id" : "solrsearchcategory", "technology_id" : 3, "publish_as_frontend_package" :  false }'  localhost:3030/api/backend 
+curl --header "Content-Type: application/json"  --request POST  --data '{"openapi_url" : "/swagger.html", "service_url" : "/search/product",  "local_repo_path" : "/Users/bumzack/bla",  "microservice_id" : "solrsearchcategory", "technology_id" : 3, "publish_as_frontend_package" :  false,"api_client_prefix" : "ApiClientPrefix" }'  localhost:3030/api/backend
+
+curl --header "Content-Type: application/json"  --request PUT  --data '{"openapiclient" : "here comes the code for the json definition" }'  localhost:3030/api/backend/solrsearchcategory
+
+curl localhost:3030/api/openapiclient/update | jq
+
+curl localhost:3030/api/backend/searcharticle | jq
