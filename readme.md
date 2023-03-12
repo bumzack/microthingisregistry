@@ -34,6 +34,9 @@ curl localhost:3030/api/technology | jq
 curl --header "Content-Type: application/json"  --request POST  --data '{"name":"xyz" }'  localhost:3030/api/technology 
 
 
+curl localhost:3030/api/technology/webflux | jq
+
+
 ###  host
 
 curl localhost:3030/api/host | jq

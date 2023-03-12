@@ -79,6 +79,7 @@ mod handlers_backend {
     pub async fn create_backend(new_tec: NewBackendPost, pool: Pool<ConnectionManager<MysqlConnection>>) -> Result<impl warp::Reply, Infallible> {
         use crate::schema::backend;
 
+        println!("adding new service {:?}", &new_tec);
         //  log::info!("create_technology: {:?}", create);
         let connection = &mut pool.get().unwrap();
 
