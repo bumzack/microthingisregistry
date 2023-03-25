@@ -13,6 +13,9 @@ diesel::table! {
         publish_as_frontend_package -> Bool,
         api_client_prefix -> Varchar,
         api_client_package -> Varchar,
+        version_major -> Integer,
+        version_minor -> Integer,
+        version_patch -> Integer,
     }
 }
 
@@ -59,10 +62,4 @@ diesel::joinable!(backend -> technology (technology_id));
 diesel::joinable!(frontend -> host (host_id));
 diesel::joinable!(frontend -> technology (technology_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    backend,
-    frontend,
-    host,
-    microservice,
-    technology,
-);
+diesel::allow_tables_to_appear_in_same_query!(backend, frontend, host, microservice, technology,);
