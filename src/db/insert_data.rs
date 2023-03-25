@@ -5,7 +5,7 @@ use dotenvy::dotenv;
 use crate::db::create_data::{
     create_backend, create_frontend, create_host, create_service, create_technology,
 };
- 
+
 use crate::diesel::associations::HasTable;
 
 pub fn insert_backends(connection: &mut MysqlConnection) {
@@ -31,7 +31,6 @@ pub fn insert_backends(connection: &mut MysqlConnection) {
             "/Users/bumzack/repo3",
             4,
         ),
- 
     ];
     backends.into_iter().for_each(|s| {
         let x = create_backend(connection, s.0, s.1, s.2, s.3, s.4);
@@ -62,7 +61,6 @@ pub fn insert_frontends(connection: &mut MysqlConnection) {
             "/dist/index.js",
             2,
         ),
- 
     ];
     frontends.into_iter().for_each(|s| {
         let x = create_frontend(connection, s.0, s.1, s.2, s.3, s.4);
@@ -87,7 +85,6 @@ pub fn insert_hosts(connection: &mut MysqlConnection) {
             "127.0.0.1",
             9002,
         ),
- 
     ];
     hosts.into_iter().for_each(|s| {
         let x = create_host(connection, s.0, s.1, s.2);

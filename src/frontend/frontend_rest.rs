@@ -4,8 +4,8 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_frontend {
-     use diesel::r2d2::ConnectionManager;
-    use diesel::MysqlConnection; 
+    use diesel::r2d2::ConnectionManager;
+    use diesel::MysqlConnection;
     use r2d2::Pool;
     use warp::Filter;
 
@@ -19,14 +19,12 @@ pub mod filters_frontend {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(frontend_list(connection_pool.clone()).or(frontend_create(connection_pool.clone())))
- 
     }
 
     /// GET /frontend
     pub fn frontend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
- 
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::get())
             .and(with_db(connection_pool.clone()))
@@ -37,7 +35,6 @@ pub mod filters_frontend {
     pub fn frontend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
- 
         warp::path!("frontend")
             .and(warp::post())
             .and(json_body_new_frontend())
@@ -47,7 +44,6 @@ pub mod filters_frontend {
 
     fn json_body_new_frontend(
     ) -> impl Filter<Extract = (NewFrontendPost,), Error = warp::Rejection> + Clone {
- 
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -59,7 +55,7 @@ mod handlers_frontend {
 
     use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, RunQueryDsl};
- 
+
     use r2d2::Pool;
     use serde::Serialize;
     use warp::http::StatusCode;
@@ -72,10 +68,9 @@ mod handlers_frontend {
     use crate::models::rest_models::rest_models::{ErrorMessage, NewFrontendPost};
 
     // opts: ListOptions,
-     pub async fn list_frontend(
+    pub async fn list_frontend(
         db: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
- 
         // Just return a JSON array of todos, applying the limit and offset.
         let connection = &mut db.get().unwrap();
         let frontends: Vec<Frontend> = print_frontends(connection);
@@ -84,11 +79,10 @@ mod handlers_frontend {
         Ok(warp::reply::json(&frontends))
     }
 
-     pub async fn create_frontend(
+    pub async fn create_frontend(
         new_tec: NewFrontendPost,
         pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
- 
         use crate::schema::frontend;
 
         //  log::info!("create_frontend: {:?}", create);
@@ -98,11 +92,11 @@ mod handlers_frontend {
         let id = create_service(connection, new_tec.microservice_id.as_str());
         let result = find_microservice_by_name(pool, new_tec.microservice_id.as_str());
         if result.is_none() {
-             let message = format!(
+            let message = format!(
                 "can't find microservice id '{}'",
                 new_tec.microservice_id.as_str()
             );
- 
+
             let code = StatusCode::NOT_FOUND;
             let json = warp::reply::json(&ErrorMessage {
                 code: code.as_u16(),
@@ -121,9 +115,8 @@ mod handlers_frontend {
 
         match diesel::insert_into(frontend::table)
             .values(&new_frontend)
-             .execute(connection)
+            .execute(connection)
         {
- 
             Ok(iedee) => {
                 let message = format!("created");
                 let code = StatusCode::CREATED;
@@ -134,11 +127,11 @@ mod handlers_frontend {
                 Ok(warp::reply::with_status(json, code))
             }
             Err(e) => {
-                 let message = format!(
+                let message = format!(
                     "an error occurred inserting a new frontend which we are ignoring '{}'",
                     e
                 );
- 
+
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
 
                 let json = warp::reply::json(&ErrorMessage {

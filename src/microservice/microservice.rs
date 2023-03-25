@@ -2,7 +2,7 @@ use std::io::Error;
 
 use diesel::r2d2::ConnectionManager;
 use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
- 
+
 use r2d2::Pool;
 
 use crate::db::read_data::print_backends;
@@ -13,7 +13,6 @@ pub fn find_microservice_by_name(
     db: Pool<ConnectionManager<MysqlConnection>>,
     name: &str,
 ) -> Option<MicroService> {
- 
     let connection = &mut db.get().unwrap();
 
     use crate::schema::microservice;
@@ -34,7 +33,6 @@ pub fn find_backend_by_name(
     db: Pool<ConnectionManager<MysqlConnection>>,
     name: &str,
 ) -> Option<Backend> {
- 
     let connection = &mut db.get().unwrap();
 
     println!("looking for backend {}", name);
@@ -51,4 +49,3 @@ pub fn find_backend_by_name(
         }
     }
 }
- 

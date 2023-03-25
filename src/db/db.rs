@@ -2,7 +2,7 @@ use std::env;
 
 use diesel::r2d2::ConnectionManager;
 use diesel::{Connection, MysqlConnection};
- 
+
 use dotenvy::dotenv;
 use r2d2::Pool;
 use warp::Filter;
@@ -19,7 +19,7 @@ fn database_url_for_env() -> String {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     println!("DATABASE URL {}", database_url);
- 
+
     database_url
 }
 
@@ -42,4 +42,3 @@ pub fn with_db(
 > + Clone {
     warp::any().map(move || db.clone())
 }
- 
