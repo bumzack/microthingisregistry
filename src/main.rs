@@ -1,34 +1,47 @@
 extern crate diesel;
+ extern crate futures;
 extern crate pretty_env_logger;
-extern crate  futures ;
+ 
 
 use std::env;
 
 use diesel::mysql;
 use diesel::prelude::*;
+ use dotenvy::dotenv;
+ 
 use serde::{Deserialize, Serialize};
 use warp::Filter;
 
 use crate::backend::backend_rest::filters_backend;
 use crate::db::db::get_connection_pool;
-use crate::db::insert_data::{insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies};
+ use crate::db::insert_data::{
+    insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies,
+};
+ 
 use crate::db::read_data::{print_backends, print_frontends, print_hosts, print_services};
 use crate::frontend::frontend_rest::filters_frontend;
 use crate::host::host_rest::filters_host;
 use crate::technology::technology_rest::filters_technology;
 
-mod utils;
-mod technology;
+ mod backend;
+mod db;
+mod frontend;
 mod host;
+mod microservice;
 mod models;
 mod schema;
-mod db;
-mod backend;
-mod frontend;
-mod microservice;
+mod technology;
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let p = dotenv().unwrap();
+    println!("path {:?}", &p);
+    for (key, value) in env::vars() {
+        println!("{key}: {value}");
+    }
+
+ 
     let pool = get_connection_pool();
 
     if env::var_os("RUST_LOG").is_none() {

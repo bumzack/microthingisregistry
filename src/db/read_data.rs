@@ -76,7 +76,10 @@ pub fn print_backends(connection: &mut MysqlConnection) -> Vec<Backend> {
 
     println!("Displaying {} backends", backends.len());
     for b in &backends {
-        println!("backend {} / {} / {} / {}   ", b.id, b.service_url, b.openapi_url, b.local_repo_path);
+        println!(
+            "backend {} / {} / {} / {}   ",
+            b.id, b.service_url, b.openapi_url, b.local_repo_path
+        );
     }
     backends
 }

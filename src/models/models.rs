@@ -8,7 +8,10 @@ use crate::schema::host;
 use crate::schema::microservice;
 use crate::schema::technology;
 
-#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(
+    Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
+)]
+ 
 #[diesel(table_name = backend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -25,10 +28,15 @@ pub struct Backend {
     pub publish_as_frontend_package: bool,
     pub api_client_prefix: String,
     pub api_client_package: String,
+    pub version_major: i32,
+    pub version_minor: i32,
+    pub version_patch: i32,
 }
 
-
-#[derive(Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(
+    Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
+)]
+ 
 #[diesel(table_name = frontend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -55,7 +63,6 @@ pub struct Host {
     pub port: i32,
 }
 
-
 #[derive(Queryable, Identifiable, Selectable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = microservice)]
 pub struct MicroService {
@@ -76,7 +83,7 @@ pub struct NewTechnology<'a> {
     pub name: &'a str,
 }
 
-
+ 
 #[derive(Insertable)]
 #[diesel(table_name = host)]
 pub struct NewHost<'a> {
@@ -91,7 +98,7 @@ pub struct NewMicroService<'a> {
     pub microservice_id: &'a str,
 }
 
-
+ 
 #[derive(Insertable)]
 #[diesel(table_name = backend)]
 pub struct NewBackend<'a> {

@@ -10,16 +10,27 @@ pub fn create_technology(conn: &mut MysqlConnection, other_name: &str) -> usize 
     let new_tec = NewTechnology { name: other_name };
     match diesel::insert_into(technology::table)
         .values(&new_tec)
-        .execute(conn) {
+         .execute(conn)
+    {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new technology which we are ignoring '{}'", e);
+            println!(
+                "an error occurred inserting a new technology which we are ignoring '{}'",
+                e
+            );
+ 
             0
         }
     }
 }
 
-pub fn create_host(conn: &mut MysqlConnection, new_host_name: &str, new_ip: &str, new_port: i32) -> usize {
+ pub fn create_host(
+    conn: &mut MysqlConnection,
+    new_host_name: &str,
+    new_ip: &str,
+    new_port: i32,
+) -> usize {
+ 
     use crate::schema::host;
     let new_host = NewHost {
         hostname: new_host_name,
@@ -28,10 +39,15 @@ pub fn create_host(conn: &mut MysqlConnection, new_host_name: &str, new_ip: &str
     };
     match diesel::insert_into(host::table)
         .values(&new_host)
-        .execute(conn) {
+         .execute(conn)
+    {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new host which we are ignoring '{}'", e);
+            println!(
+                "an error occurred inserting a new host which we are ignoring '{}'",
+                e
+            );
+ 
             0
         }
     }
@@ -44,21 +60,29 @@ pub fn create_service(conn: &mut MysqlConnection, new_service_id: &str) -> usize
     };
     match diesel::insert_into(microservice::table)
         .values(&new_service)
-        .execute(conn) {
+         .execute(conn)
+    {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new serivce which we are ignoring '{}'", e);
+            println!(
+                "an error occurred inserting a new serivce which we are ignoring '{}'",
+                e
+            );
+ 
             0
         }
     }
 }
 
-pub fn create_backend(conn: &mut MysqlConnection,
-                      new_service_id: &str,
-                      new_service_url: &str,
-                      new_openapi_url: &str,
-                      new_local_repo_path: &str,
-                      new_technology_id: i32) -> usize {
+ pub fn create_backend(
+    conn: &mut MysqlConnection,
+    new_service_id: &str,
+    new_service_url: &str,
+    new_openapi_url: &str,
+    new_local_repo_path: &str,
+    new_technology_id: i32,
+) -> usize {
+ 
     use crate::schema::backend;
     let new_backend = NewBackend {
         microservice_id: new_service_id,
@@ -73,21 +97,29 @@ pub fn create_backend(conn: &mut MysqlConnection,
 
     match diesel::insert_into(backend::table)
         .values(&new_backend)
-        .execute(conn) {
+         .execute(conn)
+    {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new backend which we are ignoring '{}'", e);
+            println!(
+                "an error occurred inserting a new backend which we are ignoring '{}'",
+                e
+            );
+ 
             0
         }
     }
 }
 
-pub fn create_frontend(conn: &mut MysqlConnection,
-                       new_service_id: &str,
-                       new_service_url: &str,
-                       new_local_repo_path: &str,
-                       new_url: &str,
-                       new_technology_id: i32) -> usize {
+ pub fn create_frontend(
+    conn: &mut MysqlConnection,
+    new_service_id: &str,
+    new_service_url: &str,
+    new_local_repo_path: &str,
+    new_url: &str,
+    new_technology_id: i32,
+) -> usize {
+ 
     use crate::schema::frontend;
     let new_frontend = NewFrontend {
         microservice_id: new_service_id,
@@ -98,12 +130,16 @@ pub fn create_frontend(conn: &mut MysqlConnection,
     };
     match diesel::insert_into(frontend::table)
         .values(&new_frontend)
-        .execute(conn) {
+         .execute(conn)
+    {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new frontend which we are ignoring '{}'", e);
+            println!(
+                "an error occurred inserting a new frontend which we are ignoring '{}'",
+                e
+            );
+ 
             0
         }
     }
 }
-
