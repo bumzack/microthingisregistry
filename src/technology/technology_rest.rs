@@ -6,6 +6,7 @@
 pub mod filters_technology {
     use diesel::r2d2::ConnectionManager;
     use diesel::MysqlConnection;
+ 
     use r2d2::Pool;
     use warp::Filter;
 
@@ -23,12 +24,14 @@ pub mod filters_technology {
                 .or(technology_create(connection_pool.clone()))
                 .or(technology_find_by_name(connection_pool.clone())),
         )
+ 
     }
 
     /// GET /technology
     pub fn technology_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+ 
         warp::path!("technology")
             .and(warp::get())
             .and(with_db(connection_pool.clone()))
@@ -39,6 +42,7 @@ pub mod filters_technology {
     pub fn technology_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+ 
         warp::path!("technology")
             .and(warp::post())
             .and(json_body_new_technology())
@@ -50,14 +54,16 @@ pub mod filters_technology {
     pub fn technology_find_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+
         warp::path!("technology" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
             .and_then(handlers_technology::find_by_name_technology)
     }
 
-    fn json_body_new_technology(
+     fn json_body_new_technology(
     ) -> impl Filter<Extract = (NewTechnologyPost,), Error = warp::Rejection> + Clone {
+ 
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -67,8 +73,9 @@ pub mod filters_technology {
 mod handlers_technology {
     use std::convert::Infallible;
 
-    use diesel::r2d2::ConnectionManager;
+     use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+ 
     use r2d2::Pool;
     use serde::Serialize;
     use warp::http::StatusCode;
@@ -80,9 +87,10 @@ mod handlers_technology {
     use crate::models::rest_models::rest_models::{ErrorMessage, NewTechnologyPost};
 
     // opts: ListOptions,
-    pub async fn list_technologies(
+     pub async fn list_technologies(
         db: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
+ 
         let connection = &mut db.get().unwrap();
         let techs: Vec<Technology> = print_technologies(connection);
         // log::info!("    -> todo id not found!");
@@ -90,10 +98,11 @@ mod handlers_technology {
         Ok(warp::reply::json(&techs))
     }
 
-    pub async fn find_by_name_technology(
+     pub async fn find_by_name_technology(
         name: String,
         db: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
+ 
         let connection = &mut db.get().unwrap();
         use crate::schema::technology;
         let x = technology::table
@@ -105,10 +114,11 @@ mod handlers_technology {
         Ok(warp::reply::json(&x))
     }
 
-    pub async fn create_technology(
+     pub async fn create_technology(
         new_tec: NewTechnologyPost,
         pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
+ 
         use crate::schema::technology;
 
         //  log::info!("create_technology: {:?}", create);
@@ -116,12 +126,14 @@ mod handlers_technology {
 
         let new_tec = NewTechnology {
             name: new_tec.name.as_str(),
+ 
         };
 
         match diesel::insert_into(technology::table)
             .values(&new_tec)
-            .execute(connection)
+             .execute(connection)
         {
+ 
             Ok(iedee) => {
                 let message = format!("created");
                 let code = StatusCode::CREATED;
@@ -136,6 +148,7 @@ mod handlers_technology {
                     "an error occurred inserting a new technology which we are ignoring '{}'",
                     e
                 );
+ 
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
 
                 let json = warp::reply::json(&ErrorMessage {

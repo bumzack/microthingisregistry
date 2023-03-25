@@ -16,6 +16,7 @@ diesel::table! {
         version_major -> Integer,
         version_minor -> Integer,
         version_patch -> Integer,
+
     }
 }
 

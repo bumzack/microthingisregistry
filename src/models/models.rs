@@ -11,6 +11,7 @@ use crate::schema::technology;
 #[derive(
     Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
 )]
+ 
 #[diesel(table_name = backend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -35,6 +36,7 @@ pub struct Backend {
 #[derive(
     Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
 )]
+ 
 #[diesel(table_name = frontend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
 #[diesel(belongs_to(Host))]
@@ -81,6 +83,7 @@ pub struct NewTechnology<'a> {
     pub name: &'a str,
 }
 
+ 
 #[derive(Insertable)]
 #[diesel(table_name = host)]
 pub struct NewHost<'a> {
@@ -95,6 +98,7 @@ pub struct NewMicroService<'a> {
     pub microservice_id: &'a str,
 }
 
+ 
 #[derive(Insertable)]
 #[diesel(table_name = backend)]
 pub struct NewBackend<'a> {
@@ -117,3 +121,4 @@ pub struct NewFrontend<'a> {
     pub technology_id: i32,
     pub url: &'a str,
 }
+

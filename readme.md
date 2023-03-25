@@ -71,5 +71,3 @@ curl localhost:3030/api/backend/apiclientprefix/searcharticle
 curl localhost:3030/api/backend/apiclientpackage/searcharticle 
 
 curl localhost:3030/api/backend/asfrontend/all
-
-
