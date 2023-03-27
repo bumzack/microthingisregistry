@@ -42,6 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let pool = get_connection_pool();
 
+    insert_technologies(&mut pool.clone().get().unwrap());
+
     if env::var_os("RUST_LOG").is_none() {
         // Set `RUST_LOG=todos=debug` to see debug logs,
         // this only shows access logs.
