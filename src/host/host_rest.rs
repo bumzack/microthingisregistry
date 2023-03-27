@@ -11,7 +11,7 @@ pub mod filters_host {
     use warp::Filter;
 
     use crate::db::db::with_db;
-    use crate::models::rest_models::rest_models::NewHostPost;
+    use crate::models::rest_modelss::rest_models::NewHostPost;
 
     use super::handlers_host;
 
@@ -64,7 +64,7 @@ mod handlers_host {
 
     use crate::db::read_data::print_hosts;
     use crate::models::models::{Host, NewHost, NewTechnology, Technology};
-    use crate::models::rest_models::rest_models::{ErrorMessage, NewHostPost, NewTechnologyPost};
+    use crate::models::rest_modelss::rest_models::{ErrorMessage, NewHostPost, NewTechnologyPost};
 
     // opts: ListOptions,
     pub async fn list_hosts(
@@ -98,7 +98,7 @@ mod handlers_host {
             .execute(connection)
         {
             Ok(iedee) => {
-                let message = format!("created");
+                let message = "created".to_string();
                 let code = StatusCode::CREATED;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
@@ -107,10 +107,8 @@ mod handlers_host {
                 Ok(warp::reply::with_status(json, code))
             }
             Err(e) => {
-                let message = format!(
-                    "an error occurred inserting a new host which we are ignoring '{}'",
-                    e
-                );
+                let message =
+                    format!("an error occurred inserting a new host which we are ignoring '{e}'");
 
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
 

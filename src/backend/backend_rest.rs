@@ -9,12 +9,9 @@ pub mod filters_backend {
     use r2d2::Pool;
     use warp::Filter;
 
-    use crate::backend::backend_rest::handlers_backend::{
-        backend_openapi_client, get_backend_by_name,
-    };
-
+    use crate::backend::backend_rest::handlers_backend::get_backend_by_name;
     use crate::db::db::with_db;
-    use crate::models::rest_models::rest_models::{NewBackendPost, UpdateBackendOpenApiPut};
+    use crate::models::rest_modelss::rest_models::{NewBackendPost, UpdateBackendOpenApiPut};
 
     use super::handlers_backend;
 
@@ -138,35 +135,22 @@ pub mod filters_backend {
     }
 }
 
-const CONCURRENT_REQUESTS: usize = 4;
-
 mod handlers_backend {
     use std::convert::Infallible;
 
     use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
-
-    use futures::{stream, StreamExt};
-    use log::log;
     use r2d2::Pool;
-    use reqwest::Client;
-    use serde::Serialize;
-    use serde_json::json;
-    use tokio::task::spawn_blocking;
     use warp::http::StatusCode;
-    use warp::hyper::client;
 
-    use crate::backend::backend_rest::filters_backend::backend_update_openapi;
     use crate::db::create_data::create_service;
     use crate::db::read_data::print_backends;
     use crate::diesel::ExpressionMethods;
-    use crate::microservice::microservice;
     use crate::microservice::microservice::{find_backend_by_name, find_microservice_by_name};
     use crate::models::models::{Backend, NewBackend};
-    use crate::models::rest_models::rest_models::{
-        ErrorMessage, NewBackendPost, NewTechnologyPost, UpdateBackendOpenApiPut,
+    use crate::models::rest_modelss::rest_models::{
+        ErrorMessage, NewBackendPost, UpdateBackendOpenApiPut,
     };
-    use crate::schema::backend::openapiclient;
 
     // opts: ListOptions,
     pub async fn list_backend(
@@ -210,9 +194,9 @@ mod handlers_backend {
         println!("looking for backends  publish_as_frontend_package = true ");
         use crate::schema::backend;
 
-        let backends = crate::schema::backend::dsl::backend
-            .filter(crate::schema::backend::publish_as_frontend_package.eq(true))
-            .order(crate::schema::backend::microservice_id.asc())
+        let backends = backend::dsl::backend
+            .filter(backend::publish_as_frontend_package.eq(true))
+            .order(backend::microservice_id.asc())
             .load::<Backend>(connection);
 
         let list: Vec<String> = match backends {
@@ -291,8 +275,7 @@ mod handlers_backend {
         }
 
         let message = format!(
-            "updated OpenAPI clients. total backends {}. successes updating {}",
-            total, successes
+            "updated OpenAPI clients. total backends {total}. successes updating {successes}"
         );
 
         let code = StatusCode::OK;
@@ -356,8 +339,7 @@ mod handlers_backend {
             }
             Err(e) => {
                 let message = format!(
-                    "an error occurred inserting a new backend which we are ignoring '{}'",
-                    e
+                    "an error occurred inserting a new backend which we are ignoring '{e}'"
                 );
 
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
@@ -377,15 +359,10 @@ mod handlers_backend {
         update: UpdateBackendOpenApiPut,
         pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
-        use crate::schema::backend::dsl::backend;
-        use crate::schema::backend::id;
-        use crate::schema::backend::microservice_id;
-        use crate::schema::backend::openapiclient;
-
         let result = update_openapi_client(&ms_id, update.openapiclient, pool);
 
         match result {
-            Ok(iedee) => {
+            Ok(_iedee) => {
                 let message = format!("updated open api client for {}", &ms_id);
                 let code = StatusCode::OK;
                 let json = warp::reply::json(&ErrorMessage {
@@ -404,7 +381,7 @@ mod handlers_backend {
 
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
 
                 Ok(warp::reply::with_status(json, code))
@@ -418,7 +395,6 @@ mod handlers_backend {
         pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> QueryResult<usize> {
         use crate::schema::backend::dsl::backend;
-        use crate::schema::backend::id;
         use crate::schema::backend::microservice_id;
         use crate::schema::backend::openapiclient;
         println!(
@@ -428,10 +404,9 @@ mod handlers_backend {
 
         let connection = &mut pool.get().unwrap();
 
-        let result = diesel::update(backend)
+        diesel::update(backend)
             .filter(microservice_id.eq(&ms_id))
             .set(openapiclient.eq(openapi))
-            .execute(connection);
-        result
+            .execute(connection)
     }
 }

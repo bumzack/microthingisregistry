@@ -14,10 +14,7 @@ pub fn create_technology(conn: &mut MysqlConnection, other_name: &str) -> usize 
     {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!(
-                "an error occurred inserting a new technology which we are ignoring '{}'",
-                e
-            );
+            println!("an error occurred inserting a new technology which we are ignoring '{e}'");
 
             0
         }

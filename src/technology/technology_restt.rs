@@ -11,7 +11,7 @@ pub mod filters_technology {
     use warp::Filter;
 
     use crate::db::db::with_db;
-    use crate::models::rest_models::rest_models::NewTechnologyPost;
+    use crate::models::rest_modelss::rest_models::NewTechnologyPost;
 
     use super::handlers_technology;
 
@@ -72,14 +72,12 @@ mod handlers_technology {
     use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
 
     use r2d2::Pool;
-    use serde::Serialize;
     use warp::http::StatusCode;
-    use warp::log;
 
     use crate::db::read_data::{print_hosts, print_technologies};
     use crate::diesel::ExpressionMethods;
     use crate::models::models::{NewTechnology, Technology};
-    use crate::models::rest_models::rest_models::{ErrorMessage, NewTechnologyPost};
+    use crate::models::rest_modelss::rest_models::{ErrorMessage, NewTechnologyPost};
 
     // opts: ListOptions,
     pub async fn list_technologies(
@@ -135,15 +133,14 @@ mod handlers_technology {
             }
             Err(e) => {
                 let message = format!(
-                    "an error occurred inserting a new technology which we are ignoring '{}'",
-                    e
+                    "an error occurred inserting a new technology which we are ignoring '{e}'"
                 );
 
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
 
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
 
                 Ok(warp::reply::with_status(json, code))

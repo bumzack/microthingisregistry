@@ -5,7 +5,6 @@ use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
 
 use r2d2::Pool;
 
-use crate::db::read_data::print_backends;
 use crate::diesel::ExpressionMethods;
 use crate::models::models::{Backend, MicroService};
 
@@ -23,7 +22,7 @@ pub fn find_microservice_by_name(
     match result {
         Ok(r) => Some(r),
         Err(e) => {
-            println!("cant find microservice {}", name);
+            println!("cant find microservice {name}");
             None
         }
     }
@@ -38,13 +37,13 @@ pub fn find_backend_by_name(
     println!("looking for backend {}", name);
     use crate::schema::backend;
     let result = backend::table
-        .filter(crate::schema::backend::microservice_id.eq(name))
+        .filter(backend::microservice_id.eq(name))
         .select(Backend::as_select())
         .get_result(connection);
     match result {
         Ok(r) => Some(r),
         Err(e) => {
-            println!("cant find backend {}", name);
+            println!("cant find backend {name}. err {e}",);
             None
         }
     }

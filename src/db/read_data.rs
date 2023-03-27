@@ -9,9 +9,9 @@ use crate::models::models::{Backend, Frontend, Host, MicroService, Technology};
 
 pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {
     use crate::schema::technology;
-    let technologies = crate::schema::technology::dsl::technology
+    let technologies = technology::dsl::technology
         //   .filter(published.eq(true))
-        .order(crate::schema::technology::id.asc())
+        .order(technology::id.asc())
         .load::<Technology>(connection)
         .expect("Error loading technologies");
 
@@ -24,8 +24,8 @@ pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {
 
 pub fn print_services(connection: &mut MysqlConnection) -> Vec<MicroService> {
     use crate::schema::microservice;
-    let services = crate::schema::microservice::dsl::microservice
-        .order(crate::schema::microservice::id.asc())
+    let services = microservice::dsl::microservice
+        .order(microservice::id.asc())
         .load::<MicroService>(connection)
         .expect("Error loading technologies");
 
@@ -40,7 +40,7 @@ pub fn print_hosts(connection: &mut MysqlConnection) -> Vec<Host> {
     use crate::schema::host;
     let hosts = crate::schema::host::dsl::host
         //   .filter(published.eq(true))
-        .order(crate::schema::host::id.asc())
+        .order(host::id.asc())
         .load::<Host>(connection)
         .expect("Error loading technologies");
 
@@ -53,9 +53,9 @@ pub fn print_hosts(connection: &mut MysqlConnection) -> Vec<Host> {
 
 pub fn print_frontends(connection: &mut MysqlConnection) -> Vec<Frontend> {
     use crate::schema::frontend;
-    let frontends = crate::schema::frontend::dsl::frontend
+    let frontends = frontend::dsl::frontend
         //   .filter(published.eq(true))
-        .order(crate::schema::frontend::id.asc())
+        .order(frontend::id.asc())
         .load::<Frontend>(connection)
         .expect("Error loading technologies");
 
@@ -68,9 +68,9 @@ pub fn print_frontends(connection: &mut MysqlConnection) -> Vec<Frontend> {
 
 pub fn print_backends(connection: &mut MysqlConnection) -> Vec<Backend> {
     use crate::schema::backend;
-    let backends = crate::schema::backend::dsl::backend
+    let backends = backend::dsl::backend
         //   .filter(published.eq(true))
-        .order(crate::schema::backend::id.asc())
+        .order(backend::id.asc())
         .load::<Backend>(connection)
         .expect("Error loading backend");
 
