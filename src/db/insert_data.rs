@@ -6,8 +6,6 @@ use crate::db::create_data::{
     create_backend, create_frontend, create_host, create_service, create_technology,
 };
 
-use crate::diesel::associations::HasTable;
-
 pub fn insert_backends(connection: &mut MysqlConnection) {
     let backends = vec![
         (
@@ -34,7 +32,7 @@ pub fn insert_backends(connection: &mut MysqlConnection) {
     ];
     backends.into_iter().for_each(|s| {
         let x = create_backend(connection, s.0, s.1, s.2, s.3, s.4);
-        println!("inserted backend id {:?}", x);
+        println!("inserted backend id {x}");
     });
 }
 
@@ -64,7 +62,7 @@ pub fn insert_frontends(connection: &mut MysqlConnection) {
     ];
     frontends.into_iter().for_each(|s| {
         let x = create_frontend(connection, s.0, s.1, s.2, s.3, s.4);
-        println!("inserted frontend id {:?}", x);
+        println!("inserted frontend id {x}");
     });
 }
 
@@ -88,7 +86,7 @@ pub fn insert_hosts(connection: &mut MysqlConnection) {
     ];
     hosts.into_iter().for_each(|s| {
         let x = create_host(connection, s.0, s.1, s.2);
-        println!("inserted hosts id {:?}", x);
+        println!("inserted hosts id {x}");
     });
 }
 
@@ -96,7 +94,7 @@ pub fn insert_services(connection: &mut MysqlConnection) {
     let names = vec!["solrsearchproduct", "solrsearchcategory", "solrsearchimage"];
     names.into_iter().for_each(|s| {
         let x = create_service(connection, s);
-        println!("inserted services id {:?}", x);
+        println!("inserted services id {x}");
     });
 }
 
@@ -104,6 +102,6 @@ pub fn insert_technologies(connection: &mut MysqlConnection) {
     let names = vec!["rust", "typescript", "webflux", "java8"];
     names.into_iter().for_each(|s| {
         let x = create_technology(connection, s);
-        println!("inserted services id {:?}", x);
+        println!("inserted services id {x}");
     });
 }

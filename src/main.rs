@@ -14,13 +14,13 @@ use warp::Filter;
 use crate::backend::backend_rest::filters_backend;
 use crate::db::db::get_connection_pool;
 use crate::db::insert_data::{
-    insert_backends, insert_frontends, insert_hosts, insert_services, insert_technologies,
+    insert_frontends, insert_hosts, insert_services, insert_technologies,
 };
 
 use crate::db::read_data::{print_backends, print_frontends, print_hosts, print_services};
 use crate::frontend::frontend_rest::filters_frontend;
 use crate::host::host_rest::filters_host;
-use crate::technology::technology_rest::filters_technology;
+use crate::technology::technology_restt::filters_technology;
 
 mod backend;
 mod db;
