@@ -17,29 +17,29 @@ pub mod filters_technology {
 
     pub fn technology(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(
             technology_list(connection_pool.clone())
                 .or(technology_create(connection_pool.clone()))
-                .or(technology_find_by_name(connection_pool.clone())),
+                .or(technology_find_by_name(connection_pool)),
         )
     }
 
     /// GET /technology
     pub fn technology_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("technology")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_technology::list_technologies)
     }
 
     // POST /technology with JSON body
     pub fn technology_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("technology")
             .and(warp::post())
             .and(json_body_new_technology())
@@ -50,7 +50,7 @@ pub mod filters_technology {
     // GET /technology/name
     pub fn technology_find_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("technology" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -74,7 +74,7 @@ mod handlers_technology {
     use r2d2::Pool;
     use warp::http::StatusCode;
 
-    use crate::db::read_data::{print_hosts, print_technologies};
+    use crate::db::read_data::print_technologies;
     use crate::diesel::ExpressionMethods;
     use crate::models::models::{NewTechnology, Technology};
     use crate::models::rest_modelss::rest_models::{ErrorMessage, NewTechnologyPost};
@@ -122,12 +122,12 @@ mod handlers_technology {
             .values(&new_tec)
             .execute(connection)
         {
-            Ok(iedee) => {
-                let message = format!("created");
+            Ok(_iedee) => {
+                let message = "created".to_string();
                 let code = StatusCode::CREATED;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }
