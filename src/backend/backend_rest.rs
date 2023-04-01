@@ -4,8 +4,8 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_backend {
-    use diesel::MysqlConnection;
     use diesel::r2d2::ConnectionManager;
+    use diesel::MysqlConnection;
     use r2d2::Pool;
     use warp::Filter;
 
@@ -16,7 +16,7 @@ pub mod filters_backend {
 
     pub fn backend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(
             backend_list(connection_pool.clone())
@@ -34,7 +34,7 @@ pub mod filters_backend {
     /// GET /backend
     pub fn backend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -44,7 +44,7 @@ pub mod filters_backend {
     /// GET /backend/:name
     pub fn backend_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -54,7 +54,7 @@ pub mod filters_backend {
     /// GET /backend
     pub fn update_openapi_clients(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("openapiclient" / "update")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -63,7 +63,7 @@ pub mod filters_backend {
 
     pub fn get_backend_openapi_client(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / "openapiclient" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -72,7 +72,7 @@ pub mod filters_backend {
 
     pub fn get_backend_openapi_client_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / "apiclientprefix" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -81,7 +81,7 @@ pub mod filters_backend {
 
     pub fn get_backend_openapi_package_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / "apiclientpackage" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -90,7 +90,7 @@ pub mod filters_backend {
 
     pub fn get_backend_as_frontend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / "asfrontend" / "all")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -100,7 +100,7 @@ pub mod filters_backend {
     // POST /backend with JSON body
     pub fn backend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend")
             .and(warp::post())
             .and(json_body_new_backend())
@@ -111,7 +111,7 @@ pub mod filters_backend {
     // POST /backend with JSON body
     pub fn backend_update_openapi(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("backend" / String)
             .and(warp::put())
             .and(json_body_update_openapi())
@@ -119,13 +119,15 @@ pub mod filters_backend {
             .and_then(handlers_backend::update_backend)
     }
 
-    fn json_body_new_backend() -> impl Filter<Extract=(NewBackendPost, ), Error=warp::Rejection> + Clone {
+    fn json_body_new_backend(
+    ) -> impl Filter<Extract = (NewBackendPost,), Error = warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
     }
 
-    fn json_body_update_openapi() -> impl Filter<Extract=(UpdateBackendOpenApiPut, ), Error=warp::Rejection> + Clone {
+    fn json_body_update_openapi(
+    ) -> impl Filter<Extract = (UpdateBackendOpenApiPut,), Error = warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -135,8 +137,8 @@ pub mod filters_backend {
 mod handlers_backend {
     use std::convert::Infallible;
 
-    use diesel::{MysqlConnection, QueryDsl, QueryResult, RunQueryDsl};
     use diesel::r2d2::ConnectionManager;
+    use diesel::{MysqlConnection, QueryDsl, QueryResult, RunQueryDsl};
     use r2d2::Pool;
     use warp::http::StatusCode;
 

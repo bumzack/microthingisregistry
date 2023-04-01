@@ -16,7 +16,7 @@ pub mod filters_frontend {
 
     pub fn frontend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(frontend_list(connection_pool.clone()).or(frontend_create(connection_pool)))
     }
@@ -24,7 +24,7 @@ pub mod filters_frontend {
     /// GET /frontend
     pub fn frontend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -34,7 +34,7 @@ pub mod filters_frontend {
     // POST /frontend  with JSON body
     pub fn frontend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::post())
             .and(json_body_new_frontend())
@@ -56,11 +56,11 @@ mod handlers_frontend {
     use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, RunQueryDsl};
 
+    use crate::db::create_data::create_service;
     use r2d2::Pool;
     use warp::http::StatusCode;
 
-    use crate::db::create_data::create_service;
-    use crate::db::read_data::{ print_frontends};
+    use crate::db::read_data::print_frontends;
     use crate::microservice::microservice::find_microservice_by_name;
     use crate::models::models::{Frontend, NewFrontend};
     use crate::models::rest_modelss::rest_models::{ErrorMessage, NewFrontendPost};

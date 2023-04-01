@@ -17,7 +17,7 @@ pub mod filters_host {
 
     pub fn host(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(host_list(connection_pool.clone()).or(host_create(connection_pool)))
     }
@@ -25,7 +25,7 @@ pub mod filters_host {
     /// GET /host
     pub fn host_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("host")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -35,7 +35,7 @@ pub mod filters_host {
     // POST /host with JSON body
     pub fn host_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
         warp::path!("host")
             .and(warp::post())
             .and(json_body_new_host())
@@ -58,7 +58,7 @@ mod handlers_host {
     use diesel::{MysqlConnection, RunQueryDsl};
 
     use r2d2::Pool;
-     use warp::http::StatusCode;
+    use warp::http::StatusCode;
 
     use crate::db::read_data::print_hosts;
     use crate::models::models::{Host, NewHost};

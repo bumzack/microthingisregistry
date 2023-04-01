@@ -1,7 +1,6 @@
 use diesel::prelude::*;
 
-use crate::db::create_data::{create_technology};
-
+use crate::db::create_data::create_technology;
 
 pub fn insert_technologies(connection: &mut MysqlConnection) {
     let names = vec!["rust", "typescript", "webflux", "java8"];

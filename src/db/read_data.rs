@@ -1,6 +1,6 @@
 use diesel::prelude::*;
 
- use crate::models::models::{Backend, Frontend, Host, MicroService, Technology};
+use crate::models::models::{Backend, Frontend, Host, Technology};
 
 pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {
     use crate::schema::technology;

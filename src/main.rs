@@ -4,15 +4,11 @@ extern crate pretty_env_logger;
 
 use std::env;
 
-use dotenvy::dotenv;
-
 use warp::Filter;
 
 use crate::backend::backend_rest::filters_backend;
 use crate::db::db::get_connection_pool;
-use crate::db::insert_data::{
-       insert_technologies,
-};
+use crate::db::insert_data::insert_technologies;
 
 use crate::frontend::frontend_rest::filters_frontend;
 use crate::host::host_rest::filters_host;
@@ -26,11 +22,10 @@ mod microservice;
 mod models;
 mod schema;
 mod technology;
-mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let p = dotenv().unwrap();
+    // let p = dotenv().unwrap();
     // println!("path {:?}", &p);
     // for (key, value) in env::vars() {
     //     println!("{key}: {value}");
