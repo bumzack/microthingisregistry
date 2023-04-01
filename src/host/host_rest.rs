@@ -19,7 +19,7 @@ pub mod filters_host {
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let api = warp::path("api");
-        api.and(host_list(connection_pool.clone()).or(host_create(connection_pool.clone())))
+        api.and(host_list(connection_pool.clone()).or(host_create(connection_pool)))
     }
 
     /// GET /host
@@ -28,7 +28,7 @@ pub mod filters_host {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("host")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_host::list_hosts)
     }
 
@@ -58,13 +58,11 @@ mod handlers_host {
     use diesel::{MysqlConnection, RunQueryDsl};
 
     use r2d2::Pool;
-    use serde::Serialize;
-    use warp::http::StatusCode;
-    use warp::log;
+     use warp::http::StatusCode;
 
     use crate::db::read_data::print_hosts;
-    use crate::models::models::{Host, NewHost, NewTechnology, Technology};
-    use crate::models::rest_modelss::rest_models::{ErrorMessage, NewHostPost, NewTechnologyPost};
+    use crate::models::models::{Host, NewHost};
+    use crate::models::rest_modelss::rest_models::{ErrorMessage, NewHostPost};
 
     // opts: ListOptions,
     pub async fn list_hosts(
@@ -97,12 +95,12 @@ mod handlers_host {
             .values(&new_host)
             .execute(connection)
         {
-            Ok(iedee) => {
+            Ok(_iedee) => {
                 let message = "created".to_string();
                 let code = StatusCode::CREATED;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }
@@ -114,7 +112,7 @@ mod handlers_host {
 
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
 
                 Ok(warp::reply::with_status(json, code))

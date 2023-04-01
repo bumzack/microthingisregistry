@@ -18,7 +18,7 @@ pub mod filters_frontend {
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let api = warp::path("api");
-        api.and(frontend_list(connection_pool.clone()).or(frontend_create(connection_pool.clone())))
+        api.and(frontend_list(connection_pool.clone()).or(frontend_create(connection_pool)))
     }
 
     /// GET /frontend
@@ -27,7 +27,7 @@ pub mod filters_frontend {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_frontend::list_frontend)
     }
 
@@ -60,7 +60,7 @@ mod handlers_frontend {
     use warp::http::StatusCode;
 
     use crate::db::create_data::create_service;
-    use crate::db::read_data::{print_backends, print_frontends};
+    use crate::db::read_data::{ print_frontends};
     use crate::microservice::microservice::find_microservice_by_name;
     use crate::models::models::{Frontend, NewFrontend};
     use crate::models::rest_modelss::rest_models::{ErrorMessage, NewFrontendPost};
@@ -87,7 +87,7 @@ mod handlers_frontend {
         let connection = &mut pool.get().unwrap();
 
         // insert value into microservice table
-        let id = create_service(connection, new_tec.microservice_id.as_str());
+        let _id = create_service(connection, new_tec.microservice_id.as_str());
         let result = find_microservice_by_name(pool, new_tec.microservice_id.as_str());
         if result.is_none() {
             let message = format!(
@@ -98,7 +98,7 @@ mod handlers_frontend {
             let code = StatusCode::NOT_FOUND;
             let json = warp::reply::json(&ErrorMessage {
                 code: code.as_u16(),
-                message: message.into(),
+                message,
             });
             return Ok(warp::reply::with_status(json, code));
         }
@@ -115,26 +115,25 @@ mod handlers_frontend {
             .values(&new_frontend)
             .execute(connection)
         {
-            Ok(iedee) => {
-                let message = format!("created");
+            Ok(_iedee) => {
+                let message = "created".to_string();
                 let code = StatusCode::CREATED;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }
             Err(e) => {
                 let message = format!(
-                    "an error occurred inserting a new frontend which we are ignoring '{}'",
-                    e
+                    "an error occurred inserting a new frontend which we are ignoring '{e}'"
                 );
 
                 let code = StatusCode::INTERNAL_SERVER_ERROR;
 
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
 
                 Ok(warp::reply::with_status(json, code))

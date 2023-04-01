@@ -4,12 +4,11 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_backend {
-    use diesel::r2d2::ConnectionManager;
     use diesel::MysqlConnection;
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::Filter;
 
-    use crate::backend::backend_rest::handlers_backend::get_backend_by_name;
     use crate::db::db::with_db;
     use crate::models::rest_modelss::rest_models::{NewBackendPost, UpdateBackendOpenApiPut};
 
@@ -17,7 +16,7 @@ pub mod filters_backend {
 
     pub fn backend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(
             backend_list(connection_pool.clone())
@@ -28,80 +27,80 @@ pub mod filters_backend {
                 .or(backend_by_name(connection_pool.clone()))
                 .or(get_backend_openapi_client_name(connection_pool.clone()))
                 .or(get_backend_openapi_package_name(connection_pool.clone()))
-                .or(get_backend_as_frontend(connection_pool.clone())),
+                .or(get_backend_as_frontend(connection_pool)),
         )
     }
 
     /// GET /backend
     pub fn backend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::list_backend)
     }
 
     /// GET /backend/:name
     pub fn backend_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / String)
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::get_backend_by_name)
     }
 
     /// GET /backend
     pub fn update_openapi_clients(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("openapiclient" / "update")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::update_openapi_clients)
     }
 
     pub fn get_backend_openapi_client(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / "openapiclient" / String)
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::backend_openapi_client)
     }
 
     pub fn get_backend_openapi_client_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / "apiclientprefix" / String)
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::backend_apiclientprefix)
     }
 
     pub fn get_backend_openapi_package_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / "apiclientpackage" / String)
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::backend_apiclientpackage)
     }
 
     pub fn get_backend_as_frontend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / "asfrontend" / "all")
             .and(warp::get())
-            .and(with_db(connection_pool.clone()))
+            .and(with_db(connection_pool))
             .and_then(handlers_backend::backend_as_frontend)
     }
 
     // POST /backend with JSON body
     pub fn backend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend")
             .and(warp::post())
             .and(json_body_new_backend())
@@ -112,7 +111,7 @@ pub mod filters_backend {
     // POST /backend with JSON body
     pub fn backend_update_openapi(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
         warp::path!("backend" / String)
             .and(warp::put())
             .and(json_body_update_openapi())
@@ -120,15 +119,13 @@ pub mod filters_backend {
             .and_then(handlers_backend::update_backend)
     }
 
-    fn json_body_new_backend(
-    ) -> impl Filter<Extract = (NewBackendPost,), Error = warp::Rejection> + Clone {
+    fn json_body_new_backend() -> impl Filter<Extract=(NewBackendPost, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
     }
 
-    fn json_body_update_openapi(
-    ) -> impl Filter<Extract = (UpdateBackendOpenApiPut,), Error = warp::Rejection> + Clone {
+    fn json_body_update_openapi() -> impl Filter<Extract=(UpdateBackendOpenApiPut, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -138,8 +135,8 @@ pub mod filters_backend {
 mod handlers_backend {
     use std::convert::Infallible;
 
+    use diesel::{MysqlConnection, QueryDsl, QueryResult, RunQueryDsl};
     use diesel::r2d2::ConnectionManager;
-    use diesel::{MysqlConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
     use r2d2::Pool;
     use warp::http::StatusCode;
 
@@ -180,7 +177,7 @@ mod handlers_backend {
                 let code = StatusCode::NOT_FOUND;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }
@@ -261,7 +258,7 @@ mod handlers_backend {
             let body = res.text().await.unwrap();
 
             let result = match update_openapi_client(&be.microservice_id, body, db.clone()) {
-                Ok(iedee) => 1,
+                Ok(_iedee) => 1,
                 Err(e) => {
                     println!(
                         "an error occurred while updating  backend {}  which we are ignoring '{}'",
@@ -281,7 +278,7 @@ mod handlers_backend {
         let code = StatusCode::OK;
         let json = warp::reply::json(&ErrorMessage {
             code: code.as_u16(),
-            message: message.into(),
+            message,
         });
         Ok(warp::reply::with_status(json, code))
     }
@@ -297,7 +294,7 @@ mod handlers_backend {
         let connection = &mut pool.get().unwrap();
 
         // insert value into microservice table
-        let id = create_service(connection, new_tec.microservice_id.as_str());
+        let _id = create_service(connection, new_tec.microservice_id.as_str());
         let result = find_microservice_by_name(pool, new_tec.microservice_id.as_str());
         if result.is_none() {
             let message = format!(
@@ -308,7 +305,7 @@ mod handlers_backend {
             let code = StatusCode::NOT_FOUND;
             let json = warp::reply::json(&ErrorMessage {
                 code: code.as_u16(),
-                message: message.into(),
+                message,
             });
             return Ok(warp::reply::with_status(json, code));
         }
@@ -328,12 +325,12 @@ mod handlers_backend {
             .values(&new_backend)
             .execute(connection)
         {
-            Ok(iedee) => {
-                let message = format!("created");
+            Ok(_iedee) => {
+                let message = "created".to_string();
                 let code = StatusCode::CREATED;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }
@@ -346,7 +343,7 @@ mod handlers_backend {
 
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
 
                 Ok(warp::reply::with_status(json, code))
@@ -367,7 +364,7 @@ mod handlers_backend {
                 let code = StatusCode::OK;
                 let json = warp::reply::json(&ErrorMessage {
                     code: code.as_u16(),
-                    message: message.into(),
+                    message,
                 });
                 Ok(warp::reply::with_status(json, code))
             }

@@ -1,11 +1,6 @@
-use std::env;
-
-use diesel::mysql;
 use diesel::prelude::*;
-use dotenvy::dotenv;
 
-use crate::diesel::associations::HasTable;
-use crate::models::models::{Backend, Frontend, Host, MicroService, Technology};
+ use crate::models::models::{Backend, Frontend, Host, MicroService, Technology};
 
 pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {
     use crate::schema::technology;
@@ -22,23 +17,9 @@ pub fn print_technologies(connection: &mut MysqlConnection) -> Vec<Technology> {
     technologies
 }
 
-pub fn print_services(connection: &mut MysqlConnection) -> Vec<MicroService> {
-    use crate::schema::microservice;
-    let services = microservice::dsl::microservice
-        .order(microservice::id.asc())
-        .load::<MicroService>(connection)
-        .expect("Error loading technologies");
-
-    println!("Displaying {} services", services.len());
-    for s in &services {
-        println!("service  {} / {}   ", s.id, s.microservice_id);
-    }
-    services
-}
-
 pub fn print_hosts(connection: &mut MysqlConnection) -> Vec<Host> {
     use crate::schema::host;
-    let hosts = crate::schema::host::dsl::host
+    let hosts = host::dsl::host
         //   .filter(published.eq(true))
         .order(host::id.asc())
         .load::<Host>(connection)

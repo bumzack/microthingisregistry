@@ -1,8 +1,5 @@
-use diesel::mysql;
 use diesel::prelude::*;
-use dotenvy::dotenv;
 
-use crate::diesel::associations::HasTable;
 use crate::models::models::{NewBackend, NewFrontend, NewHost, NewMicroService, NewTechnology};
 
 pub fn create_technology(conn: &mut MysqlConnection, other_name: &str) -> usize {
@@ -40,8 +37,8 @@ pub fn create_host(
         Ok(iedee) => iedee,
         Err(e) => {
             println!(
-                "an error occurred inserting a new host which we are ignoring '{}'",
-                e
+                "an error occurred inserting a new host which we are ignoring '{e}'",
+
             );
 
             0
@@ -61,8 +58,7 @@ pub fn create_service(conn: &mut MysqlConnection, new_service_id: &str) -> usize
         Ok(iedee) => iedee,
         Err(e) => {
             println!(
-                "an error occurred inserting a new serivce which we are ignoring '{}'",
-                e
+                "an error occurred inserting a new serivce which we are ignoring '{e}'",
             );
 
             0
@@ -97,8 +93,8 @@ pub fn create_backend(
         Ok(iedee) => iedee,
         Err(e) => {
             println!(
-                "an error occurred inserting a new backend which we are ignoring '{}'",
-                e
+                "an error occurred inserting a new backend which we are ignoring '{e}'",
+
             );
 
             0
@@ -129,8 +125,7 @@ pub fn create_frontend(
         Ok(iedee) => iedee,
         Err(e) => {
             println!(
-                "an error occurred inserting a new frontend which we are ignoring '{}'",
-                e
+                "an error occurred inserting a new frontend which we are ignoring '{e}'"
             );
 
             0

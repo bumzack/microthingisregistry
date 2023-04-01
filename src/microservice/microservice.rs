@@ -1,5 +1,3 @@
-use std::io::Error;
-
 use diesel::r2d2::ConnectionManager;
 use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
 
@@ -16,13 +14,13 @@ pub fn find_microservice_by_name(
 
     use crate::schema::microservice;
     let result = microservice::table
-        .filter(crate::schema::microservice::microservice_id.eq(name))
+        .filter(microservice::microservice_id.eq(name))
         .select(MicroService::as_select())
         .get_result(connection);
     match result {
         Ok(r) => Some(r),
         Err(e) => {
-            println!("cant find microservice {name}");
+            println!("cant find microservice {name}, {e}");
             None
         }
     }
@@ -34,7 +32,7 @@ pub fn find_backend_by_name(
 ) -> Option<Backend> {
     let connection = &mut db.get().unwrap();
 
-    println!("looking for backend {}", name);
+    println!("looking for backend {name}");
     use crate::schema::backend;
     let result = backend::table
         .filter(backend::microservice_id.eq(name))
