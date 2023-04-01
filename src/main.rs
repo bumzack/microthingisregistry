@@ -4,20 +4,12 @@ extern crate pretty_env_logger;
 
 use std::env;
 
-use diesel::mysql;
-use diesel::prelude::*;
-use dotenvy::dotenv;
-
-use serde::{Deserialize, Serialize};
 use warp::Filter;
 
 use crate::backend::backend_rest::filters_backend;
 use crate::db::db::get_connection_pool;
-use crate::db::insert_data::{
-    insert_frontends, insert_hosts, insert_services, insert_technologies,
-};
+use crate::db::insert_data::insert_technologies;
 
-use crate::db::read_data::{print_backends, print_frontends, print_hosts, print_services};
 use crate::frontend::frontend_rest::filters_frontend;
 use crate::host::host_rest::filters_host;
 use crate::technology::technology_restt::filters_technology;
@@ -30,15 +22,14 @@ mod microservice;
 mod models;
 mod schema;
 mod technology;
-mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let p = dotenv().unwrap();
-    println!("path {:?}", &p);
-    for (key, value) in env::vars() {
-        println!("{key}: {value}");
-    }
+    // let p = dotenv().unwrap();
+    // println!("path {:?}", &p);
+    // for (key, value) in env::vars() {
+    //     println!("{key}: {value}");
+    // }
 
     let pool = get_connection_pool();
 
