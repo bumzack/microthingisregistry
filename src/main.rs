@@ -1,15 +1,13 @@
-extern crate diesel;
-extern crate futures;
-extern crate pretty_env_logger;
-
 use std::env;
 
+use dotenvy::dotenv;
+use log::{info, LevelFilter};
+use pretty_env_logger::env_logger::Builder;
 use warp::Filter;
 
 use crate::backend::backend_rest::filters_backend;
 use crate::db::db::get_connection_pool;
 use crate::db::insert_data::insert_technologies;
-
 use crate::frontend::frontend_rest::filters_frontend;
 use crate::host::host_rest::filters_host;
 use crate::technology::technology_restt::filters_technology;
@@ -25,34 +23,40 @@ mod technology;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let p = dotenv().unwrap();
-    // println!("path {:?}", &p);
-    // for (key, value) in env::vars() {
-    //     println!("{key}: {value}");
-    // }
+    Builder::new().filter_level(LevelFilter::Info).init();
+
+
+    let p = dotenv().unwrap();
+    info!("path {:?}", &p);
+    for (key, value) in env::vars() {
+        info!("{key}: {value}");
+    }
 
     let pool = get_connection_pool();
 
     insert_technologies(&mut pool.clone().get().unwrap());
-
-    if env::var_os("RUST_LOG").is_none() {
-        // Set `RUST_LOG=todos=debug` to see debug logs,
-        // this only shows access logs.
-        env::set_var("RUST_LOG", "microthingisregistry=info");
-    }
-    pretty_env_logger::init();
-
-    log::info!("bla");
+    
+    let cors = warp::cors()
+        .allow_any_origin()
+        .allow_headers(vec![
+            "User-Agent",
+            "Sec-Fetch-Mode",
+            "Referer",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+        ])
+        .allow_methods(vec!["POST", "GET"]);
 
     let root = warp::path::end().map(|| "Welcome to my warp server!");
     let root = root
         .or(filters_technology::technology(pool.clone()))
         .or(filters_backend::backend(pool.clone()))
         .or(filters_frontend::frontend(pool.clone()))
-        .or(filters_host::host(pool.clone()));
+        .or(filters_host::host(pool.clone()))
+        .with(cors);
 
-    // View access logs by setting `RUST_LOG=todos`.
-    let routes = root.with(warp::log("technology"));
+    let routes = root.with(warp::log("microthingisregistry"));
     // Start up the server...
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 

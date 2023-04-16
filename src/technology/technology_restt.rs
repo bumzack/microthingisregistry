@@ -4,9 +4,8 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_technology {
-    use diesel::r2d2::ConnectionManager;
     use diesel::MysqlConnection;
-
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::Filter;
 
@@ -17,7 +16,7 @@ pub mod filters_technology {
 
     pub fn technology(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(
             technology_list(connection_pool.clone())
@@ -29,7 +28,7 @@ pub mod filters_technology {
     /// GET /technology
     pub fn technology_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("technology")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -39,7 +38,7 @@ pub mod filters_technology {
     // POST /technology with JSON body
     pub fn technology_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("technology")
             .and(warp::post())
             .and(json_body_new_technology())
@@ -50,15 +49,14 @@ pub mod filters_technology {
     // GET /technology/name
     pub fn technology_find_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("technology" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
             .and_then(handlers_technology::find_by_name_technology)
     }
 
-    fn json_body_new_technology(
-    ) -> impl Filter<Extract = (NewTechnologyPost,), Error = warp::Rejection> + Clone {
+    fn json_body_new_technology() -> impl Filter<Extract=(NewTechnologyPost, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -68,14 +66,13 @@ pub mod filters_technology {
 mod handlers_technology {
     use std::convert::Infallible;
 
-    use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, QueryDsl, RunQueryDsl, SelectableHelper};
-
+    use diesel::r2d2::ConnectionManager;
+    use log::info;
     use r2d2::Pool;
     use warp::http::StatusCode;
 
     use crate::db::read_data::print_technologies;
-    use crate::diesel::ExpressionMethods;
     use crate::models::models::{NewTechnology, Technology};
     use crate::models::rest_modelss::rest_models::{ErrorMessage, NewTechnologyPost};
 
@@ -94,6 +91,7 @@ mod handlers_technology {
         name: String,
         db: Pool<ConnectionManager<MysqlConnection>>,
     ) -> Result<impl warp::Reply, Infallible> {
+        use diesel::ExpressionMethods;
         let connection = &mut db.get().unwrap();
         use crate::schema::technology;
         let x = technology::table
@@ -101,7 +99,7 @@ mod handlers_technology {
             .select(Technology::as_select())
             .get_result(connection)
             .expect("expect to find it");
-        println!("x {:?}", x);
+        info!("x {:?}", x);
         Ok(warp::reply::json(&x))
     }
 

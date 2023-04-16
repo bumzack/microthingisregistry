@@ -12,9 +12,9 @@ CREATE TABLE backend
     api_client_prefix           VARCHAR(255) NOT NULL UNIQUE,
     api_client_package          VARCHAR(255) NOT NULL UNIQUE,
 
-    version_major   INT          NOT NULL DEFAULT  0,
-    version_minor   INT          NOT NULL DEFAULT  0,
-    version_patch   INT          NOT NULL DEFAULT  0,
+    version_major               INT          NOT NULL DEFAULT 0,
+    version_minor               INT          NOT NULL DEFAULT 0,
+    version_patch               INT          NOT NULL DEFAULT 0,
 
     FOREIGN KEY (host_id) REFERENCES host (id),
     FOREIGN KEY (microservice_id) REFERENCES microservice (microservice_id),

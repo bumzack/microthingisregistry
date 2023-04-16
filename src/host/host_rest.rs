@@ -4,9 +4,8 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_host {
-    use diesel::r2d2::ConnectionManager;
     use diesel::MysqlConnection;
-
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::Filter;
 
@@ -17,7 +16,7 @@ pub mod filters_host {
 
     pub fn host(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(host_list(connection_pool.clone()).or(host_create(connection_pool)))
     }
@@ -25,7 +24,7 @@ pub mod filters_host {
     /// GET /host
     pub fn host_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("host")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -35,7 +34,7 @@ pub mod filters_host {
     // POST /host with JSON body
     pub fn host_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("host")
             .and(warp::post())
             .and(json_body_new_host())
@@ -43,7 +42,7 @@ pub mod filters_host {
             .and_then(handlers_host::create_host)
     }
 
-    fn json_body_new_host() -> impl Filter<Extract = (NewHostPost,), Error = warp::Rejection> + Clone
+    fn json_body_new_host() -> impl Filter<Extract=(NewHostPost, ), Error=warp::Rejection> + Clone
     {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
@@ -54,9 +53,8 @@ pub mod filters_host {
 mod handlers_host {
     use std::convert::Infallible;
 
-    use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, RunQueryDsl};
-
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::http::StatusCode;
 
