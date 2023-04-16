@@ -9,7 +9,7 @@ use crate::schema::microservice;
 use crate::schema::technology;
 
 #[derive(
-    Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
+Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
 )]
 #[diesel(table_name = backend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]
@@ -33,7 +33,7 @@ pub struct Backend {
 }
 
 #[derive(
-    Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
+Queryable, Identifiable, Associations, Selectable, Debug, PartialEq, Deserialize, Serialize,
 )]
 #[diesel(table_name = frontend)]
 #[diesel(belongs_to(MicroService, foreign_key = microservice_id))]

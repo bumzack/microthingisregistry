@@ -4,8 +4,8 @@
 // https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
 pub mod filters_frontend {
-    use diesel::r2d2::ConnectionManager;
     use diesel::MysqlConnection;
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::Filter;
 
@@ -16,7 +16,7 @@ pub mod filters_frontend {
 
     pub fn frontend(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         let api = warp::path("api");
         api.and(frontend_list(connection_pool.clone()).or(frontend_create(connection_pool)))
     }
@@ -24,7 +24,7 @@ pub mod filters_frontend {
     /// GET /frontend
     pub fn frontend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::get())
             .and(with_db(connection_pool))
@@ -34,7 +34,7 @@ pub mod filters_frontend {
     // POST /frontend  with JSON body
     pub fn frontend_create(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
+    ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("frontend")
             .and(warp::post())
             .and(json_body_new_frontend())
@@ -42,8 +42,7 @@ pub mod filters_frontend {
             .and_then(handlers_frontend::create_frontend)
     }
 
-    fn json_body_new_frontend(
-    ) -> impl Filter<Extract = (NewFrontendPost,), Error = warp::Rejection> + Clone {
+    fn json_body_new_frontend() -> impl Filter<Extract=(NewFrontendPost, ), Error=warp::Rejection> + Clone {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
@@ -53,13 +52,12 @@ pub mod filters_frontend {
 mod handlers_frontend {
     use std::convert::Infallible;
 
-    use diesel::r2d2::ConnectionManager;
     use diesel::{MysqlConnection, RunQueryDsl};
-
-    use crate::db::create_data::create_service;
+    use diesel::r2d2::ConnectionManager;
     use r2d2::Pool;
     use warp::http::StatusCode;
 
+    use crate::db::create_data::create_service;
     use crate::db::read_data::print_frontends;
     use crate::microservice::microservice::find_microservice_by_name;
     use crate::models::models::{Frontend, NewFrontend};

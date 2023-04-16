@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use log::{error, info};
 
 use crate::models::models::{NewMicroService, NewTechnology};
 
@@ -11,7 +12,7 @@ pub fn create_technology(conn: &mut MysqlConnection, other_name: &str) -> usize 
     {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new technology which we are ignoring '{e}'");
+            info!("an error occurred inserting a new technology which we are ignoring '{e}'");
 
             0
         }
@@ -29,7 +30,7 @@ pub fn create_service(conn: &mut MysqlConnection, new_service_id: &str) -> usize
     {
         Ok(iedee) => iedee,
         Err(e) => {
-            println!("an error occurred inserting a new serivce which we are ignoring '{e}'",);
+            error!("an error occurred inserting a new serivce which we are ignoring '{e}'",);
 
             0
         }
