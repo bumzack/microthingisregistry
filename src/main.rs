@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = get_connection_pool();
 
     insert_technologies(&mut pool.clone().get().unwrap());
-    
+
     let cors = warp::cors()
         .allow_any_origin()
         .allow_headers(vec![
@@ -43,10 +43,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Sec-Fetch-Mode",
             "Referer",
             "Origin",
+            "content-type",
             "Access-Control-Request-Method",
             "Access-Control-Request-Headers",
+            "Access-Control-Allow-Headers",
+            "Access-Control-Allow-Methods",
+            "Access-Control-Allow-Origin",
+            "Access-Control-Expose-Headers",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Methods",
+            "Accept-Encoding",
+            "Accept-Language",
+            "Accept-Post",
+            "Access-Control-Allow-Credentials",
+            "keep-alive",
         ])
-        .allow_methods(vec!["POST", "GET"]);
+        .allow_methods(vec!["POST", "GET", "OPTIONS", "PUT", "DELETE", "HEAD"]);
 
     let root = warp::path::end().map(|| "Welcome to my warp server!");
     let root = root
