@@ -6,21 +6,22 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-warp = "0.3.4"
-diesel = { version = "2.0.3", features = ["mysql", "r2d2"] }
-dotenvy = "0.15"
+warp = "0.3.5"
+diesel = { version = "2.0.4", features = ["mysql", "r2d2"] }
+dotenvy = "0.15.7"
 diesel_migrations = "2.0.0"
-r2d2 = "0.8.2"
-serde = "1.0.154"
-serde_json = "1.0.94"
+r2d2 = "0.8.10"
+serde = "1.0.160"
+serde_json = "1.0.96"
 serde_urlencoded = "0.7.1"
-serde_derive = "1.0.155"
-tokio = { version = "1.26.0", features = ["full"] }
+serde_derive = "1.0.160"
+tokio = { version = "1.28.0", features = ["full"] }
 log = "0.4.17"
 pretty_env_logger = "0.4.0"
-reqwest = { version = "0.11.14", features = ["blocking"] }
+reqwest = { version = "0.11.16", features = ["blocking"] }
 # futures-util = { version = "0.3", default-features = false, features = ["sink"] }
-futures = "0.3.27"
+futures = "0.3.28"
+# quote = "=1.0.23"
 
 [dev-dependencies]
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.28.0", features = ["macros", "rt-multi-thread"] }
