@@ -1,5 +1,5 @@
 {
-  "name": "article_search_results",
+  "name": "microthingisregistry-frontend",
   "source": "src/index.html",
   "scripts": {
     "start": "parcel",
