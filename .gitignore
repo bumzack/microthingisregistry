@@ -10,6 +10,6 @@ Cargo.lock
 **/*.rs.bk
 
 scripts/*.json
-parcel-cache/
+.parcel-cache/
 
 node_modules/
