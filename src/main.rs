@@ -23,7 +23,7 @@ mod technology;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    Builder::new().filter_level(LevelFilter::Info).init();
+    Builder::new().filter_level(LevelFilter::Debug).init();
 
 
     let p = dotenv().unwrap();

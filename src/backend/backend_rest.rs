@@ -6,9 +6,11 @@
 pub mod filters_backend {
     use diesel::MysqlConnection;
     use diesel::r2d2::ConnectionManager;
+    use log::info;
     use r2d2::Pool;
     use warp::Filter;
 
+    use crate::backend::backend_rest::handlers_backend::get_backend_by_name;
     use crate::db::db::with_db;
     use crate::models::rest_modelss::rest_models::{NewBackendPost, UpdateBackendOpenApiPut};
 
@@ -31,7 +33,7 @@ pub mod filters_backend {
         )
     }
 
-    /// GET /backend
+    // GET /backend
     pub fn backend_list(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
@@ -41,17 +43,20 @@ pub mod filters_backend {
             .and_then(handlers_backend::list_backend)
     }
 
-    /// GET /backend/:name
+    // GET /backend/:name
     pub fn backend_by_name(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
         warp::path!("backend" / String)
             .and(warp::get())
             .and(with_db(connection_pool))
-            .and_then(handlers_backend::get_backend_by_name)
+            .and_then(|name, pool| {
+                info!("backend by name matched. name: {}", &name);
+                get_backend_by_name(name, pool)
+            })
     }
 
-    /// GET /backend
+    // GET /backend
     pub fn update_openapi_clients(
         connection_pool: Pool<ConnectionManager<MysqlConnection>>,
     ) -> impl Filter<Extract=(impl warp::Reply, ), Error=warp::Rejection> + Clone {
@@ -140,6 +145,7 @@ mod handlers_backend {
     use log::info;
     use r2d2::Pool;
     use warp::http::StatusCode;
+    use warp::Reply;
 
     use crate::db::create_data::create_service;
     use crate::db::read_data::print_backends;
@@ -164,13 +170,15 @@ mod handlers_backend {
     pub async fn get_backend_by_name(
         ms_id: String,
         db: Pool<ConnectionManager<MysqlConnection>>,
-    ) -> Result<impl warp::Reply, Infallible> {
+    ) -> Result<impl Reply, Infallible> {
         let be = find_backend_by_name(db, ms_id.as_str());
         match be {
-            Some(b) => Ok(warp::reply::with_status(
-                warp::reply::json(&b),
-                StatusCode::OK,
-            )),
+            Some(b) => {
+                let res = warp::reply::json(&b);
+                let res = res.into_response();
+                println!("got a useful response {:?}", &res);
+                Ok(res)
+            },
 
             None => {
                 let message = format!("can not find  backend {}", &ms_id);
@@ -179,7 +187,10 @@ mod handlers_backend {
                     code: code.as_u16(),
                     message,
                 });
-                Ok(warp::reply::with_status(json, code))
+
+                let r = warp::reply::with_status("not found", StatusCode::NOT_FOUND).into_response()    ;;
+                println!("cant find microservice with ms_id {:?} -> response {:?}", &ms_id, &r);
+                Ok(r)
             }
         }
     }
