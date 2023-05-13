@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>Article Search Results</title>
-    <script type="module" src="app.ts"></script>
+    <title>MicroThingisRegistry</title>
+    <script src="app.ts" type="module"></script>
     <link href="./bootstrap.css" rel="stylesheet">
     <script src="./bootstrap.bundle.js"></script>
 </head>
 <body>
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Search Results</a>
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
-            aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search"
-           aria-label="Search">
-    <div class="navbar-nav">
-        <div class="nav-item text-nowrap">
-            <a class="nav-link px-3" href="#">Sign out</a>
-        </div>
-    </div>
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">MicroThingisRegistry</a>
+    <!--    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"-->
+    <!--            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"-->
+    <!--            aria-label="Toggle navigation">-->
+    <!--        <span class="navbar-toggler-icon"></span>-->
+    <!--    </button>-->
+    <!--    <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search"-->
+    <!--           aria-label="Search">-->
+    <!--    <div class="navbar-nav">-->
+    <!--        <div class="nav-item text-nowrap">-->
+    <!--            <a class="nav-link px-3" href="#">Sign out</a>-->
+    <!--        </div>-->
+    <!--    </div>-->
 </header>
 <div class="container-fluid">
     <div class="row">
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-body-tertiary sidebar collapse">
+        <nav class="col-md-3 col-lg-2 d-md-block bg-body-tertiary sidebar collapse" id="sidebarMenu">
             <div class="position-sticky pt-3 sidebar-sticky">
                 <ul class="nav flex-column" id="serversources">
                 </ul>
@@ -48,9 +48,16 @@
             </div>
 
             <div>
-                <div id="targetservers" data-bs-spy="scroll" data-bs-target="#serversources"
-                     data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
+                <div class="scrollspy-example-2" data-bs-smooth-scroll="true" data-bs-spy="scroll"
+                     data-bs-target="#serversources" id="server_backend" tabindex="0">
+                    <h4>Backend Services</h4>
+
                 </div>
+
+                <div class="scrollspy-example-2" data-bs-smooth-scroll="true" data-bs-spy="scroll"
+                     data-bs-target="#serversources" id="server_frontent" tabindex="0">
+                </div>
+
             </div>
         </main>
     </div>

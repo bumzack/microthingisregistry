@@ -567,24 +567,101 @@ window.$ = window.jQuery = (0, _jqueryDefault.default);
     load_frontendservers();
 });
 const load_backendservers = ()=>{
-    const url = "http://microthingisregistry.bumzack.at/api/backend";
+    // const url = "http://microthingisregistry.bumzack.at/api/backend";
+    const url = "http://localhost:3030/api/backend";
     (0, _jqueryDefault.default).ajax({
         url: url
     }).done((data)=>{
         const sources = data;
         console.log(`backend server ${JSON.stringify(sources, null, 4)} `);
-    // render_server(sources);
+        const b = render_server_backends(sources);
+        console.log(`b ${b}`);
+        (0, _jqueryDefault.default)("#server_backend").empty();
+        (0, _jqueryDefault.default)("#server_backend").append("<h4>Backend Services</h4>");
+        (0, _jqueryDefault.default)("#server_backend").append(b);
     });
 };
 const load_frontendservers = ()=>{
-    const url = "http://microthingisregistry.bumzack.at/api/frontend";
+    // const url = "http://microthingisregistry.bumzack.at/api/frontend";
+    // const url = "http://localhost:3030/api/backend";
+    const url = "http://localhost:3030/api/frontend";
     (0, _jqueryDefault.default).ajax({
         url: url
     }).done((data)=>{
         const sources = data;
-        console.log(`backend server ${JSON.stringify(sources, null, 4)} `);
-    // render_server(sources);
+        console.log(`frontend server ${JSON.stringify(sources, null, 4)} `);
+        const b = render_server_frontends(sources);
+        console.log(`b ${b}`);
+        (0, _jqueryDefault.default)("#server_frontend").empty();
+        (0, _jqueryDefault.default)("#server_frontend").append("<h4>FrontEnd Services</h4>");
+        (0, _jqueryDefault.default)("#server_frontend").append(b);
     });
+};
+const render_server_backends = (backends)=>{
+    let rows = backends.map((b)=>{
+        return render_backend_row(b);
+    }).join("\n");
+    return `
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">service name</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">OpenAPI client URL</th>
+                        <th scope="col">OpenAPI client (first 200 charachters from JSON)</th>
+                     </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    `;
+};
+const render_backend_row = (backend)=>{
+    var _a;
+    let client = (_a = backend.openapiclient) === null || _a === void 0 ? void 0 : _a.substring(0, 200);
+    return `
+        <tr>
+            <td>${backend.id}</td>
+            <td>${backend.microservice_id}</td>
+            <td>${backend.service_url}</td>
+            <td>${backend.openapi_url}</td>
+            <td>${client}</td>
+        </tr>    
+    `;
+};
+const render_server_frontends = (frontends)=>{
+    let rows = frontends.map((b)=>{
+        return render_frontend_row(b);
+    }).join("\n");
+    return `
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">service name</th>
+                        <th scope="col">URL</th>
+                     </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    `;
+};
+const render_frontend_row = (frontend)=>{
+    return `
+        <tr>
+            <td>${frontend.id}</td>
+            <td>${frontend.microservice_id}</td>
+            <td>${frontend.service_url}</td>
+        </tr>    
+    `;
 };
 
 },{"jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hgMhh":[function(require,module,exports) {
@@ -7441,6 +7518,6 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}]},["lSgxL","kuM8f"], "kuM8f", "parcelRequire8316")
+},{}]},["lSgxL","kuM8f"], "kuM8f", "parcelRequireb513")
 
 //# sourceMappingURL=index.6b815632.js.map
